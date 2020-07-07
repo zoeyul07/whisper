@@ -15,7 +15,7 @@ cursor = db.cursor()
 db.begin()
 init_databases(db)
 
-with open('whisper_20200707_17_06.txt', 'r') as f:
+with open('whisper_20200707_35_04.txt', 'r') as f:
     TABLE_QUERIES = import_aquery(f)
 
 for query in TABLE_QUERIES:

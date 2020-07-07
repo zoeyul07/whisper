@@ -1,7 +1,7 @@
 ﻿-- 테이블 순서는 관계를 고려하여 한 번에 실행해도 에러가 발생하지 않게 정렬되었습니다.
 
 -- users Table Create SQL
-CREATE TABLE toy.users
+CREATE TABLE users
 (
     `id`          INT            NOT NULL    AUTO_INCREMENT COMMENT 'id', 
     `email`       VARCHAR(50)    NOT NULL    COMMENT '이메일', 
@@ -13,11 +13,11 @@ CREATE TABLE toy.users
     PRIMARY KEY (id)
 );
 
-ALTER TABLE toy.users COMMENT '회원';
+ALTER TABLE users COMMENT '회원';
 
 
 -- users Table Create SQL
-CREATE TABLE toy.emotions
+CREATE TABLE emotions
 (
     `id`         INT             NOT NULL    AUTO_INCREMENT COMMENT 'id', 
     `name`       VARCHAR(20)     NOT NULL    COMMENT '감정표현이름', 
@@ -27,11 +27,11 @@ CREATE TABLE toy.emotions
     PRIMARY KEY (id)
 );
 
-ALTER TABLE toy.emotions COMMENT '감정';
+ALTER TABLE emotions COMMENT '감정';
 
 
 -- users Table Create SQL
-CREATE TABLE toy.series
+CREATE TABLE series
 (
     `id`          INT            NOT NULL    AUTO_INCREMENT COMMENT 'id', 
     `users_id`    INT            NOT NULL    COMMENT '유저id', 
@@ -40,15 +40,15 @@ CREATE TABLE toy.series
     PRIMARY KEY (id)
 );
 
-ALTER TABLE toy.series COMMENT '시리즈';
+ALTER TABLE series COMMENT '시리즈';
 
-ALTER TABLE toy.series
+ALTER TABLE series
     ADD CONSTRAINT FK_series_users_id_users_id FOREIGN KEY (users_id)
-        REFERENCES toy.users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+        REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 
 -- users Table Create SQL
-CREATE TABLE toy.diaries
+CREATE TABLE diaries
 (
     `id`            INT              NOT NULL    AUTO_INCREMENT COMMENT 'id', 
     `users_id`      INT              NOT NULL    COMMENT '회원id', 
@@ -64,34 +64,34 @@ CREATE TABLE toy.diaries
     PRIMARY KEY (id)
 );
 
-ALTER TABLE toy.diaries COMMENT '다이어리';
+ALTER TABLE diaries COMMENT '다이어리';
 
-ALTER TABLE toy.diaries
+ALTER TABLE diaries
     ADD CONSTRAINT FK_diaries_users_id_users_id FOREIGN KEY (users_id)
-        REFERENCES toy.users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+        REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
-ALTER TABLE toy.diaries
+ALTER TABLE diaries
     ADD CONSTRAINT FK_diaries_emotions_id_emotions_id FOREIGN KEY (emotions_id)
-        REFERENCES toy.emotions (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+        REFERENCES emotions (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
-ALTER TABLE toy.diaries
+ALTER TABLE diaries
     ADD CONSTRAINT FK_diaries_series_id_series_id FOREIGN KEY (series_id)
-        REFERENCES toy.series (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+        REFERENCES series (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 
 -- users Table Create SQL
-CREATE TABLE toy.questions
+CREATE TABLE questions
 (
     `id`        INT             NOT NULL    AUTO_INCREMENT COMMENT 'id', 
     `contents`  VARCHAR(100)    NOT NULL    COMMENT '질문', 
     PRIMARY KEY (id)
 );
 
-ALTER TABLE toy.questions COMMENT '질문';
+ALTER TABLE questions COMMENT '질문';
 
 
 -- users Table Create SQL
-CREATE TABLE toy.likes
+CREATE TABLE likes
 (
     `id`          INT        NOT NULL    AUTO_INCREMENT COMMENT 'id', 
     `users_id`    INT        NOT NULL    COMMENT '회원id', 
@@ -100,12 +100,12 @@ CREATE TABLE toy.likes
     PRIMARY KEY (id)
 );
 
-ALTER TABLE toy.likes
+ALTER TABLE likes
     ADD CONSTRAINT FK_likes_users_id_users_id FOREIGN KEY (users_id)
-        REFERENCES toy.users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+        REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
-ALTER TABLE toy.likes
+ALTER TABLE likes
     ADD CONSTRAINT FK_likes_diaries_id_diaries_id FOREIGN KEY (diaries_id)
-        REFERENCES toy.diaries (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+        REFERENCES diaries (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 
