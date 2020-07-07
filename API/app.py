@@ -9,4 +9,5 @@ def create_app():
     CORS(app)
     app.register_blueprint(diary_app, url_prefix='/diary')
     app.register_blueprint(series_app, url_prefix='/series')
+    app.register_blueprint('user', url_prefix='/user')
     return app
