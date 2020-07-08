@@ -8,8 +8,8 @@ class ModelDao:
         try:
             with db.cursor() as cursor:
                 query = """
-                INSERT INTO serires(user_id, name)
-                VALIES(%s, %s)
+                INSERT INTO series(user_id, name)
+                VALUES(%s, %s)
                 """
                 affected_row = cursor.execute(query, (user_id, name))
                 # execute 에러 처리
