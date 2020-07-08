@@ -23,6 +23,6 @@ def import_aquery(file):
     aquery = aquery.replace("-- users Table Create SQL", " ")
     aquery = aquery.replace("\n", " ")
     aquery = " ".join(aquery.split())
-    aquery = aquery.replace("`created_at`  DATETIME", "`created_at`  DATETIME DEFAULT CURRENT_TIMESTAMP ")
-
+    aquery = aquery.replace("`created_at` DATETIME", "`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP ")
+    aquery = aquery.replace("`is_deleted` TINYINT", "`is_deleted` TINYINT DEFAULT 0 ")
     return aquery.split(';')[:-1]
