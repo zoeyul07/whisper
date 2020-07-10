@@ -20,6 +20,26 @@ class ModelDao:
         except Exception as e:
             raise e
 
+    def search_series(self, db, user_id, name):
+        """
+        시리즈 조회
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT id FROM series
+                WHERE user_id = %s AND name = %s
+                """
+                affected_row = cursor.execute(query, (user_id, name))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+                elif affected_row == 0:
+                    return None
+                return cursor.fetchone()['id']
+
+        except Exception as e:
+            raise e
+
     def search_kakao_user(self, db, kakao_id):
         """
         kakao 로그인
