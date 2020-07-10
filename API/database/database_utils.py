@@ -20,7 +20,7 @@ def init_databases(db):
 def import_aquery(file):
     file.readline()
     aquery = file.read()
-    aquery = aquery.replace("-- users Table Create SQL", " ")
+    aquery = aquery.replace("-- socials Table Create SQL", " ")
     aquery = aquery.replace("\n", " ")
     aquery = " ".join(aquery.split())
     aquery = aquery.replace("`created_at` DATETIME", "`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP ")

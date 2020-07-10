@@ -19,3 +19,61 @@ class ModelDao:
                 return None
         except Exception as e:
             raise e
+
+    def search_kakao_user(self, db, kakao_id):
+        """
+        kakao 로그인
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query ="""
+                SELECT users.id FROM users INNER JOIN socials
+                ON users.social_id = socials.id
+                WHERE kakao_id = %s;
+                """
+                affected_row = cursor.execute(query, kakao_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+                elif affected_row == 1:
+                    return cursor.fetchone()
+                elif affected_row == 0:
+                    return None
+
+        except Exception as e:
+            raise e
+
+    def insert_kakao_user(self, db, kakao_id):
+        """
+        kakao 회원가입
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                INSERT INTO socials(kakao_id, type)
+                VALUES(%s,'kakao')
+                """
+                affected_row = cursor.execute(query, kakao_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.lastrowid
+        except Exception as e:
+            raise e
+
+    def insert_kakao_into_user(self, db, social_id, nickname):
+        """
+        kakao 회원가입
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                INSERT INTO users(social_id, nickname)
+                VALUES(%s, %s)
+                """
+                affected_row = cursor.execute(query, (social_id, nickname))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.lastrowid
+        except Exception as e:
+            raise e
