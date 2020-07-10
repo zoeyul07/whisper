@@ -19,7 +19,6 @@ def kakao():
     """ kakao 로그인 API
 
     """
-
     db = None
     try:
         token = request.headers['Authorization']
@@ -59,4 +58,3 @@ def kakao():
     finally:
         if db:
             db.close()
-
