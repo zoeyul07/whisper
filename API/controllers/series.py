@@ -48,3 +48,32 @@ def new_series():
     finally:
         if db:
             db.close()
+
+@series_app.route('', methods=['GET'])
+def find_user_series():
+    """ user별 시리즈 조회
+
+    """
+    db = None
+    try:
+        user_id = 1
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        series_data = model_dao.my_series(db, user_id)
+        data = [
+            {
+                "id": series['id'],
+                "name": series['name'],
+                "count": model_dao.count_series_diary(db, user_id, series['id'])
+            }for series in series_data ]
+
+        return jsonify(data), 200
+
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()

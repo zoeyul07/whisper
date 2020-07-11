@@ -40,6 +40,24 @@ class ModelDao:
         except Exception as e:
             raise e
 
+    def my_series(self, db, user_id):
+        """
+        user에 따른 모든 series조회
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT id, name FROM series
+                WHERE user_id = %s
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
+
     def search_kakao_user(self, db, kakao_id):
         """
         kakao 로그인
@@ -95,5 +113,23 @@ class ModelDao:
                     raise Exception('EXECUTE_FAILED')
 
                 return cursor.lastrowid
+        except Exception as e:
+            raise e
+
+    def count_series_diary(self, db, user_id, series_id):
+        """
+        시리즈안에 포함된 다이어리 갯수
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT COUNT(*) FROM diaries
+                WHERE user_id = %s AND series_id = %s
+                """
+                affected_row = cursor.execute(query, (user_id, series_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchone()['COUNT(*)']
         except Exception as e:
             raise e
