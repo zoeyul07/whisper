@@ -77,3 +77,30 @@ def find_user_series():
     finally:
         if db:
             db.close()
+
+@series_app.route('/<int:series_id>', methods=['PUT'])
+def change_series_name(series_id):
+    """시리즈 이름 변경 API
+
+    """
+    try:
+        db = None
+
+        user_id = 1
+        name = request.json['name']
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        db.begin()
+        model_dao.update_series_name(db, name, series_id)
+        db.commit()
+        return (''), 200
+
+    except Exception as e:
+        db.rollback()
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()

@@ -133,3 +133,21 @@ class ModelDao:
                 return cursor.fetchone()['COUNT(*)']
         except Exception as e:
             raise e
+
+    def update_series_name(self, db, name, series_id):
+        """
+        시리즈 이름 변경
+        """
+        try:
+            with db.cursor() as cursor:
+                query="""
+                UPDATE series SET name = %s
+                WHERE series.id = %s
+                """
+                affected_row = cursor.execute(query, (name, series_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
