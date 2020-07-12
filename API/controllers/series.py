@@ -104,3 +104,30 @@ def change_series_name(series_id):
     finally:
         if db:
             db.close()
+
+@series_app.route('/<int:series_id>', methods=['DELETE'])
+def delete_series(series_id):
+    """시리즈 삭제하는 API
+
+    """
+    try:
+        db = None
+
+        user_id = 1
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        db.begin()
+        model_dao.delete_series_from_db(db, series_id, user_id)
+        model_dao.delete_series_from_diaries(db, series_id, user_id)
+        db.commit()
+        return (''), 200
+
+    except Exception as e:
+        db.rollback()
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()

@@ -140,11 +140,47 @@ class ModelDao:
         """
         try:
             with db.cursor() as cursor:
-                query="""
+                query = """
                 UPDATE series SET name = %s
-                WHERE series.id = %s
+                WHERE id = %s
                 """
                 affected_row = cursor.execute(query, (name, series_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def delete_series_from_db(self, db, series_id, user_id):
+        """
+        시리즈 소프트 딜리트
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE series set is_deleted = 1
+                WHERE id = %s AND user_id = %s
+                """
+                affected_row = cursor.execute(query, (series_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def delete_series_from_diaries(self, db, series_id, user_id):
+        """
+        다이어리에서 해당 시리즈 삭제
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET series_id = NULL
+                WHERE series_id = %s AND user_id = %s
+                """
+                affected_row = cursor.execute(query, (series_id, user_id))
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
