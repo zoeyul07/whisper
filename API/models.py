@@ -49,6 +49,7 @@ class ModelDao:
                 query = """
                 SELECT id, name FROM series
                 WHERE user_id = %s
+                AND is_deleted = 0
                 """
                 affected_row = cursor.execute(query, user_id)
                 if affected_row == -1:
