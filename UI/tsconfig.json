@@ -1,22 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es5", //빌드 결과물은 es5, 호환성을 위해.
-    "lib": ["ES6", "dom", "dom.iterable", "esnext"], //라이브러리 문법.
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true, //stricMode 여부.
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react", //jsx 사용.
-    "noImplicitAny": false, // 암시적 선언이 any로 추론되면 알려줌. (false이유: 모듈 import에서 any type오류를 지워줌)
-    "outDir": "build/dist", //빌드 결과물의 폴더.
-    "baseUrl": "src" // 절대경로 설정하기
+    "jsx": "react"
   },
   "include": ["src"]
 }
