@@ -1,0 +1,111 @@
+﻿-- 테이블 순서는 관계를 고려하여 한 번에 실행해도 에러가 발생하지 않게 정렬되었습니다.
+
+-- users Table Create SQL
+CREATE TABLE users
+(
+    `id`          INT            NOT NULL    AUTO_INCREMENT COMMENT 'id', 
+    `email`       VARCHAR(50)    NOT NULL    COMMENT '이메일', 
+    `password`    VARCHAR(50)    NOT NULL    COMMENT '비밀번호', 
+    `created_at`  DATETIME       NOT NULL    COMMENT '생성일', 
+    `updated_at`  DATETIME       NULL        COMMENT '업데이트', 
+    `nickname`    VARCHAR(20)    NOT NULL    COMMENT '닉네임', 
+    `is_deleted`  TINYINT        NOT NULL    COMMENT '소프트딜리트', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE users COMMENT '회원';
+
+
+-- users Table Create SQL
+CREATE TABLE emotions
+(
+    `id`         INT             NOT NULL    AUTO_INCREMENT COMMENT 'id', 
+    `name`       VARCHAR(20)     NOT NULL    COMMENT '감정표현이름', 
+    `image_url`  VARCHAR(500)    NOT NULL    COMMENT '이모티콘', 
+    `color`      VARCHAR(10)     NOT NULL    COMMENT '색상', 
+    `score`      INT             NOT NULL    COMMENT '점수', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE emotions COMMENT '감정';
+
+
+-- users Table Create SQL
+CREATE TABLE series
+(
+    `id`          INT            NOT NULL    AUTO_INCREMENT COMMENT 'id', 
+    `user_id`     INT            NOT NULL    COMMENT '유저id', 
+    `name`        VARCHAR(50)    NOT NULL    COMMENT '이름', 
+    `is_deleted`  TINYINT        NOT NULL    COMMENT '소프트딜리트', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE series COMMENT '시리즈';
+
+ALTER TABLE series
+    ADD CONSTRAINT FK_series_user_id_users_id FOREIGN KEY (user_id)
+        REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+-- users Table Create SQL
+CREATE TABLE diaries
+(
+    `id`            INT              NOT NULL    AUTO_INCREMENT COMMENT 'id', 
+    `user_id`       INT              NOT NULL    COMMENT '회원id', 
+    `emotion_id`    INT              NOT NULL    COMMENT '감정id', 
+    `series_id`     INT              NULL        COMMENT '시리즈id', 
+    `summary`       VARCHAR(100)     NOT NULL    COMMENT '한줄요약', 
+    `contents`      VARCHAR(2000)    NOT NULL    COMMENT '다이어리내용', 
+    `created_at`    DATETIME         NOT NULL    COMMENT '생성일', 
+    `updated_at`    DATETIME         NULL        COMMENT '업데이트일', 
+    `is_completed`  TINYINT          NOT NULL    COMMENT '임시저장', 
+    `public`        TINYINT          NOT NULL    COMMENT '공개여부', 
+    `is_deleted`    TINYINT          NOT NULL    COMMENT '소프트딜리트', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE diaries COMMENT '다이어리';
+
+ALTER TABLE diaries
+    ADD CONSTRAINT FK_diaries_user_id_users_id FOREIGN KEY (user_id)
+        REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE diaries
+    ADD CONSTRAINT FK_diaries_emotion_id_emotions_id FOREIGN KEY (emotion_id)
+        REFERENCES emotions (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE diaries
+    ADD CONSTRAINT FK_diaries_series_id_series_id FOREIGN KEY (series_id)
+        REFERENCES series (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+-- users Table Create SQL
+CREATE TABLE questions
+(
+    `id`        INT             NOT NULL    AUTO_INCREMENT COMMENT 'id', 
+    `contents`  VARCHAR(100)    NOT NULL    COMMENT '질문', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE questions COMMENT '질문';
+
+
+-- users Table Create SQL
+CREATE TABLE likes
+(
+    `id`          INT        NOT NULL    AUTO_INCREMENT COMMENT 'id', 
+    `user_id`     INT        NOT NULL    COMMENT '회원id', 
+    `diary_id`    INT        NOT NULL    COMMENT '다이어리id', 
+    `is_deleted`  TINYINT    NOT NULL    COMMENT '소프트딜리트', 
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE likes
+    ADD CONSTRAINT FK_likes_user_id_users_id FOREIGN KEY (user_id)
+        REFERENCES users (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE likes
+    ADD CONSTRAINT FK_likes_diary_id_diaries_id FOREIGN KEY (diary_id)
+        REFERENCES diaries (id) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
