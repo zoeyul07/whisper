@@ -131,3 +131,38 @@ def delete_series(series_id):
     finally:
         if db:
             db.close()
+
+@series_app.route('diary/<int:series_id>', methods=['GET'])
+def diaries_series(series_id):
+    """시리즈별 다이어리 보여주는 API
+
+    """
+    try:
+        db = None
+
+        user_id = 1
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        diaries = model_dao.search_diaries_in_series(db, series_id, user_id)
+        diary=[
+            {
+                "diary_id": data['id'],
+                "emotion_id": data['emotion_id'],
+                "image_url":data['image_url'],
+                "color":data['color'],
+                "summary":data['summary'],
+                "like": True if data['is_deleted'] == 0 else False,
+                "is_public": True if data['public'] == 1 else False,
+                "count":model_dao.count_likes(db, data['id'])
+            }for data in diaries]
+
+        return jsonify(diary), 200
+    except Exception as e:
+        db.rollback()
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()
