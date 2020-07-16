@@ -188,3 +188,41 @@ class ModelDao:
                 return None
         except Exception as e:
             raise e
+
+    def search_diaries_in_series(self, db, series_id, user_id):
+        """
+        시리즈에 있는 다이어리 조회
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT diaries.id, emotion_id, image_url, color, summary, public, likes.is_deleted FROM diaries
+                INNER JOIN emotions ON diaries.emotion_id = emotions.id
+                LEFT JOIN likes ON diaries.id = likes.diary_id
+                WHERE series_id = %s AND diaries.user_id = %s
+                """
+                affected_row = cursor.execute(query, (series_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
+
+    def count_likes(self, db, diary_id):
+        """
+        좋아요 갯수
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT COUNT(*) FROM likes
+                WHERE diary_id = %s
+                """
+                affected_row = cursor.execute(query, diary_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchone()['COUNT(*)']
+        except Exception as e:
+            raise e
