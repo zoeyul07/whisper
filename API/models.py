@@ -216,7 +216,7 @@ class ModelDao:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
                 SELECT COUNT(*) FROM likes
-                WHERE diary_id = %s
+                WHERE diary_id = %s AND is_deleted = 0
                 """
                 affected_row = cursor.execute(query, diary_id)
                 if affected_row == -1:
