@@ -94,7 +94,6 @@ class ModelDao:
                 affected_row = cursor.execute(query, kakao_id)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
-
                 return cursor.lastrowid
         except Exception as e:
             raise e
@@ -189,7 +188,7 @@ class ModelDao:
         except Exception as e:
             raise e
 
-def search_diaries_in_series(self, db, series_id, user_id):
+    def search_diaries_in_series(self, db, series_id, user_id):
         """
         시리즈에 있는 다이어리 조회
         """
@@ -227,36 +226,37 @@ def search_diaries_in_series(self, db, series_id, user_id):
         except Exception as e:
             raise e
 
-        def delete_series_from_diaries(self, db, series_id, user_id):
-          """
-          다이어리에서 해당 시리즈 삭제
-          """
-          try:
-              with db.cursor() as cursor:
-                  query = """
-                  UPDATE diaries SET series_id = NULL
-                  WHERE series_id = %s AND user_id = %s
-                  """
-                  affected_row = cursor.execute(query, (series_id, user_id))
-                  if affected_row == -1:
-                      raise Exception('EXECUTE_FAILED')
+    def delete_series_from_diaries(self, db, series_id, user_id):
+        """
+        다이어리에서 해당 시리즈 삭제
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET series_id = NULL
+                WHERE series_id = %s AND user_id = %s
+                """
+                affected_row = cursor.execute(query, (series_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
 
-                  return None
-          except Exception as e:
-              raise e
+                return None
+        except Exception as e:
+            raise e
 
-      def search_emotion(self, db):
-          """
-          모든 감정 정보 보여주기
-          """
-          try:
-              with db.cursor(pymysql.cursors.DictCursor) as cursor:
-                  query = """
-                  SELECT id, name, image_url, color FROM emotions
-                  """
-                  affected_row = cursor.execute(query)
-                  if affected_row == -1:
-                      raise Exception('EXECUTE_FAILED')
+    def search_emotion(self, db):
+        """
+        모든 감정 정보 보여주기
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT id, name, image_url, color FROM emotions
+                """
+                affected_row = cursor.execute(query)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
 
-                  return cursor.fetchall()
-          except Exception as e:
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
