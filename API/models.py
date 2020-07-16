@@ -278,3 +278,20 @@ class ModelDao:
                 return None
         except Exception as e:
             raise e
+
+    def search_question(self, db):
+        """
+        모든 질문 보여주기
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT id, contents FROM questions
+                """
+                affected_row = cursor.execute(query)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
