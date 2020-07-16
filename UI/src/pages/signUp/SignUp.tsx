@@ -4,6 +4,7 @@ import axios from "axios";
 import Kakao from "kakaojs";
 
 function SignUp() {
+  /*
   const kakaoLogin = async () => {
     Kakao.Auth.login({
       success: function (res: object) {
@@ -36,8 +37,9 @@ function SignUp() {
       },
     });
   };
+  */
 
-  return(
+  return (
     <div>
       <Link to="signUp/Email">
         <button>이메일</button>
@@ -45,7 +47,7 @@ function SignUp() {
       <button>카카오</button>
       <button>구글</button>
     </div>
-  )
+  );
 }
 
 export default SignUp;
