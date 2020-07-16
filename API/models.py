@@ -226,3 +226,20 @@ class ModelDao:
                 return cursor.fetchone()['COUNT(*)']
         except Exception as e:
             raise e
+
+    def update_series(self, db, series_id, diary_id, user_id):
+        """
+        시리즈에 다이어리 추가
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET series_id = %s
+                WHERE id IN %s AND user_id = %s AND is_deleted = 0
+                """
+                affected_row = cursor.execute(query, (series_id, diary_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+                return None
+        except Exception as e:
+            raise e
