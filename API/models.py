@@ -350,5 +350,5 @@ class ModelDao:
 
                 return None
 
-            except Exception as e:
-                raise e
+        except Exception as e:
+            raise e
