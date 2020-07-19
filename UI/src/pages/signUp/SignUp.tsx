@@ -55,7 +55,7 @@ function SignUp() {
       setNickname(e);
       console.log("성공");
       setCheckNickname(true);
-    }
+    }// 닉네임 형식 확인
 
     if(checkNickname === true) {
       try {
@@ -68,8 +68,8 @@ function SignUp() {
       } catch (e) {
         console.log(e)
       }
-    }
-  } //닉네임 형식 확인
+    }// 닉네임 중복 확인
+  } //닉네임 형식 및 중복 확인
 
   const register = async() => {
     if(password === confirm && checkEmail === true) {

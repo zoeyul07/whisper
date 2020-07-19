@@ -147,6 +147,7 @@ def diaries_series(series_id):
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         diaries = model_dao.search_diaries_in_series(db, series_id, user_id)
+
         diary=[
             {
                 "diary_id": data['id'],
@@ -160,6 +161,73 @@ def diaries_series(series_id):
             }for data in diaries]
 
         return jsonify(diary), 200
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()
+
+@series_app.route('diary/<int:series_id>', methods=['POST'])
+def insert_serise_diary(series_id):
+    """시리즈에 다이어리 추가 API
+    """
+    try:
+        db = None
+
+        user_id = 1
+
+        # requset body로 들어온 diary id를 tuple로 변경
+        diaries = request.json['diary_id']
+        diary_list = []
+        for diary in diaries:
+            diary_id = diary['id']
+            diary_list.append(diary_id)
+        diary_tuple = tuple(diary_list)
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        db.begin()
+        model_dao.update_series(db, series_id, diary_tuple, user_id)
+        db.commit()
+        return (''), 200
+
+    except Exception as e:
+        db.rollback()
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()
+
+@series_app.route('diary/<int:series_id>', methods=['DELETE'])
+def delete_diary(series_id):
+    """
+    시리즈에서 다이어리 삭제하는 API
+    """
+    try:
+        db = None
+
+        user_id = 1
+
+        diaries = request.json['diary_id']
+
+        # requset body로 들어온 diary id를 tuple로 변경
+        diary_list = []
+        for diary in diaries:
+            diary_id = diary['id']
+            diary_list.append(diary_id)
+        diary_tuple = tuple(diary_list)
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        db.begin()
+        model_dao.delete_diary_from_series(db, diary_tuple, user_id, series_id)
+        db.commit()
+        return (''), 200
+
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500

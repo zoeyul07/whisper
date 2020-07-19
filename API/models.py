@@ -94,7 +94,6 @@ class ModelDao:
                 affected_row = cursor.execute(query, kakao_id)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
-
                 return cursor.lastrowid
         except Exception as e:
             raise e
@@ -217,12 +216,158 @@ class ModelDao:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
                 SELECT COUNT(*) FROM likes
-                WHERE diary_id = %s
+                WHERE diary_id = %s AND is_deleted = 0
                 """
                 affected_row = cursor.execute(query, diary_id)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
                 return cursor.fetchone()['COUNT(*)']
+        except Exception as e:
+            raise e
+
+    def delete_series_from_diaries(self, db, series_id, user_id):
+        """
+        다이어리에서 해당 시리즈 삭제
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET series_id = NULL
+                WHERE series_id = %s AND user_id = %s
+                """
+                affected_row = cursor.execute(query, (series_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def search_emotion(self, db):
+        """
+        모든 감정 정보 보여주기
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT id, name, image_url, color FROM emotions
+                """
+                affected_row = cursor.execute(query)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
+
+    def update_series(self, db, series_id, diary_id, user_id):
+        """
+        시리즈에 다이어리 추가
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET series_id = %s
+                WHERE id IN %s AND user_id = %s AND is_deleted = 0
+                """
+                affected_row = cursor.execute(query, (series_id, diary_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def search_question(self, db):
+        """
+        모든 질문 보여주기
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT id, contents FROM questions
+                """
+                affected_row = cursor.execute(query)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
+
+    def delete_diary_from_series(self, db, diary_id, user_id, series_id):
+        """
+        시리즈에서 해당 다이어리 삭제
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET series_id = NULL
+                WHERE id in %s AND user_id = %s
+                AND series_id = %s AND is_deleted = 0
+                """
+                affected_row = cursor.execute(query, (diary_id, user_id, series_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    #회원가입시 user 생성
+    def create_user(self, db, email, password, nickname):
+        try:
+            with db.cursor() as cursor:
+                query = """
+                    INSERT INTO users(email, password, nickname)
+                    VALUES(%s, %s, %s)
+                """
+                affected_row = cursor.execute(query, (email, password, nickname))
+                if affected_row == -1:
+                    raise Exception('EXCUTE_FAILED')
+
+                return None
+
+        except Exception as e:
+            raise e
+
+    #가입된 이메일  확인
+    def search_email(self, db, email):
+        try:
+            with db.cursor(pymmysql.cursors.DictCursor) as cursor:
+                query = """
+                    SELECT id, password FROM users
+                    WHERE email = %s
+                    """
+                affected_row = cursor.excecute(query, email)
+                if affected_row = -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                elif affected_row = 1:
+                    return cursor.fetchone()
+
+                return None
+
+        except Exception as e:
+            raise e
+
+    #닉네임 중복 확인
+    def search_nickname(self, db, nickname):
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                    SELECT id FROM users
+                    WHERE nickname = %s
+                    """
+                affected_row = cursor.excute(query, nickname)
+                if affected_row = -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                elif affected_row = 1:
+                    return cursor.fetchone()
+
+                return None
+
         except Exception as e:
             raise e
