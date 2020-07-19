@@ -11,6 +11,10 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./@types"
+    ],
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
