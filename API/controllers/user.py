@@ -63,21 +63,21 @@ def kakao():
 
 #이메일 회원가입
 @user_app.route('/sign-up', methods=['POST'])
-def sign_up()
+def sign_up():
     try:
         db = db_connector()
         data = request.json
         data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-        
+
         db.begin()
         model_dao.create_user(db, data['email'], data['password'], data['nickname'])
         db.commit()
         return '', 200
-    
+
     except Exception as e:
         db.rollback()
         return jsonify(message = f'{e}'), 500
-    
+
     finally:
         if db:
             db.close()
@@ -93,7 +93,7 @@ def check_if_email_exist():
         if email:
             return jsonify(message = "EMAIL_ALREADY_EXIST"), 400
         return jsonify(message = "AVAILABLE_EMAIL"), 200
-    
+
     except Exception as e:
         return jsonify(message = f"{e}"), 500
 
@@ -107,12 +107,12 @@ def check_if_nickname_exist():
     try:
         db = db_connector
         data = request.json
-        
+
         nickname = model_dao.search_nickname(db, data['nickname'])
         if nickname:
             return jsonify(message = "NICKNAME_ALREADY_EXIST"), 400
         return jsonify(message = "AVAILABLE_NICKNAME"), 200
-    
+
     except Exception as e:
         return jsonify(message = f"{e}")
 
@@ -127,12 +127,12 @@ def sign_in():
         db = db_connector
         data = requset.json
         user = model_dao.search_email(db, user['email'])
-        
+
         if email:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
                 token = jwt.encode({'id': user['id']}, SECRET_KEY, ALGORITHM)
                 return jsonify(token = token), 200
-            
+
             return jsonify(message = "PASSWORD_DOES_NOT_MATCH"), 400
         return jsonify(message = "EMAIL_DOES_NOT_EXIST"), 400
 
