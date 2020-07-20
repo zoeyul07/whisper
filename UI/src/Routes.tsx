@@ -4,6 +4,7 @@ import GlobalStyle from "./Config";
 import SignIn from "./pages/signIn/SignIn";
 import SignUp from "./pages/signUp/SignUp";
 import postWriting from "./pages/postWriting/PostWriting";
+import Main from "./pages/main/Main";
 
 function Routes() {
   return (
@@ -13,6 +14,7 @@ function Routes() {
         <Route exact path="/" component={SignIn} />
         <Route exact path="/signUp" component={SignUp} />
         <Route exact path="/post/writing" component={postWriting} />
+        <Route exact path="/main" component={Main} />
       </Switch>
     </Router>
   );
