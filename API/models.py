@@ -296,78 +296,23 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    def delete_diary_from_series(self, db, diary_id, user_id, series_id):
+    def other_person_diary(self, db, user_id):
         """
-        시리즈에서 해당 다이어리 삭제
+        다른 사람 다이어리 모두 보여주기
         """
-        try:
-            with db.cursor() as cursor:
-                query = """
-                UPDATE diaries SET series_id = NULL
-                WHERE id in %s AND user_id = %s
-                AND series_id = %s AND is_deleted = 0
-                """
-                affected_row = cursor.execute(query, (diary_id, user_id, series_id))
-                if affected_row == -1:
-                    raise Exception('EXECUTE_FAILED')
-
-                return None
-        except Exception as e:
-            raise e
-
-    #회원가입시 user 생성
-    def create_user(self, db, email, password, nickname):
-        try:
-            with db.cursor() as cursor:
-                query = """
-                    INSERT INTO users(email, password, nickname)
-                    VALUES(%s, %s, %s)
-                """
-                affected_row = cursor.execute(query, (email, password, nickname))
-                if affected_row == -1:
-                    raise Exception('EXCUTE_FAILED')
-
-                return None
-
-        except Exception as e:
-            raise e
-
-    #가입된 이메일  확인
-    def search_email(self, db, email):
-        try:
-            with db.cursor(pymmysql.cursors.DictCursor) as cursor:
-                query = """
-                    SELECT id, password FROM users
-                    WHERE email = %s
-                    """
-                affected_row = cursor.excecute(query, email)
-                if affected_row = -1:
-                    raise Exception('EXECUTE_FAILED')
-
-                elif affected_row = 1:
-                    return cursor.fetchone()
-
-                return None
-
-        except Exception as e:
-            raise e
-
-    #닉네임 중복 확인
-    def search_nickname(self, db, nickname):
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
-                    SELECT id FROM users
-                    WHERE nickname = %s
-                    """
-                affected_row = cursor.excute(query, nickname)
-                if affected_row = -1:
+                SELECT diaries.id, emotion_id, image_url, color, summary, public, diaries.is_deleted, likes.is_deleted, users.nickname FROM diaries
+                INNER JOIN emotions ON diaries.emotion_id = emotions.id
+                INNER JOIN users ON diaries.user_id = %s
+                LEFT JOIN likes ON diaries.id = likes.diary_id
+                WHERE diaries.is_deleted = 0
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
-                elif affected_row = 1:
-                    return cursor.fetchone()
-
-                return None
-
+                return cursor.fetchall()
         except Exception as e:
             raise e
