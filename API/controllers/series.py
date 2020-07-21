@@ -14,10 +14,26 @@ model_dao = ModelDao()
 
 @series_app.route('', methods=['POST'])
 def new_series():
-    """새로운 시리즈 생성 API
+    """새로운 시리즈 생성 API.
 
+    Headers:
+        Token
+
+    Args:
+        user_id: 사용자 id
+        name: 생성될 시리즈 이름
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
-
     db = None
     try:
         # user_id = 토큰에서 받아온 user_id
@@ -29,9 +45,9 @@ def new_series():
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
-        series_id = model_dao.search_series(db, user_id, name)
-
         # 시리즈 중복 확인
+        series_id = model_dao.search_series(db, user_id, name)
+        # 시리즈가 존재하면 Error
         if series_id:
             return jsonify(message="EXIST_SERIES"), 400
 
@@ -42,6 +58,24 @@ def new_series():
 
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -51,7 +85,7 @@ def new_series():
 
 @series_app.route('', methods=['GET'])
 def find_user_series():
-    """ user별 시리즈 조회
+    """user별 시리즈 조회.
 
     """
     db = None
@@ -72,6 +106,18 @@ def find_user_series():
 
         return jsonify(data), 200
 
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
@@ -98,6 +144,24 @@ def change_series_name(series_id):
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -120,11 +184,31 @@ def delete_series(series_id):
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         db.begin()
+        # 시리즈 삭제
         model_dao.delete_series_from_db(db, series_id, user_id)
+        # 다이어리에서 해당 시리즈 삭제
         model_dao.delete_series_from_diaries(db, series_id, user_id)
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -161,6 +245,19 @@ def diaries_series(series_id):
             }for data in diaries]
 
         return jsonify(diary), 200
+
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
@@ -193,6 +290,24 @@ def insert_serise_diary(series_id):
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -228,6 +343,24 @@ def delete_diary(series_id):
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
