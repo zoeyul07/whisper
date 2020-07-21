@@ -103,7 +103,6 @@ def sign_up():
             email : 사용자의 이메일
             nickname : 사용자의 닉네임
             password : 사용자의 비밀번호
-
     """
     db = None
     try:
@@ -147,11 +146,10 @@ def check_if_email_exist():
 
         Args:
             email : 사용자의 이메일
-
     """
     db = None
     try:
-        db = db_connector
+        db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
@@ -184,11 +182,10 @@ def check_if_nickname_exist():
 
         Args:
             nickname : 사용자의 닉네임
-
     """
     db = None
     try:
-        db = db_connector
+        db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
@@ -228,7 +225,7 @@ def sign_in():
     """
     db = None
     try:
-        db = db_connector
+        db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
         
@@ -237,7 +234,14 @@ def sign_in():
 
         if email:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
-                token = jwt.encode({'id': user['id']}, SECRET_KEY, ALGORITHM)
+                token = jwt.encode(
+                    {
+                        'id': user['id'], 
+                        'exp': datetime.utcnow() + timedelta(hours=1)
+                    }, 
+                    SECRET_KEY, 
+                    ALGORITHM
+                )
                 return jsonify(token = token), 200
 
             return jsonify(message = "PASSWORD_DOES_NOT_MATCH"), 400

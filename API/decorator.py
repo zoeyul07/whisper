@@ -12,7 +12,6 @@ def login_required(func):
 
             Header:
                 Authorization: 검증이 필요한 토큰
-                
         """
         try:
             encoded_token = request.headers["Authorization"]
@@ -22,6 +21,8 @@ def login_required(func):
 
         except jwt.exceptions.DecodeError:
             return jsonify(message = "INVALID_TOKEN"), 401
+        except jwt.ExpiredSignatureError:
+            return jsonify(message="TOKEN_EXPIRED"), 403
         except KeyError:
             return jsonify(message="INVALID_LOGIN"), 401 
         except Exception as e:
