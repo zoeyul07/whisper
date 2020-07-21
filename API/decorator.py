@@ -16,7 +16,7 @@ def login_required(func):
         try:
             encoded_token = request.headers["Authorization"]
             decoded_token = jwt.decode(encoded_token, SECRET_KEY, ALGORITHM)
-            
+
             return func(*args, **kwargs, **decoded_token)
 
         except jwt.exceptions.DecodeError:
@@ -24,9 +24,8 @@ def login_required(func):
         except jwt.ExpiredSignatureError:
             return jsonify(message="TOKEN_EXPIRED"), 403
         except KeyError:
-            return jsonify(message="INVALID_LOGIN"), 401 
+            return jsonify(message="INVALID_LOGIN"), 401
         except Exception as e:
             return jsonify(message=f"{e}"), 500
 
-    return wrapper 
-
+    return wrapper

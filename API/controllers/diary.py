@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 
 from connections import db_connector
 from models import ModelDao
+from decorator import login_required
 
 diary_app = Blueprint("diary", __name__)
 model_dao = ModelDao()
@@ -80,13 +81,15 @@ def other_person_diary(user_id):
             db.close()
 
 @diary_app.route('', methods=['PUT'])
-def change_public():
+@login_required
+def change_public(**kwargs):
     """다이어리 공개 여부 변경 API.
 
     Headers:
         token
 
     Args:
+        user_id:
         diary_id: 다이어리 id
         status: 공개 여부
 
@@ -103,7 +106,7 @@ def change_public():
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
 
         diaries = request.json['diary_id']
 
