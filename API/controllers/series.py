@@ -224,7 +224,7 @@ def delete_diary(series_id):
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         db.begin()
-        model_dao.delete_diary_from_series(db, diary_tuple, user_id, series_id)
+        model_dao.delete_diaries_from_series(db, diary_tuple, user_id, series_id)
         db.commit()
         return (''), 200
 

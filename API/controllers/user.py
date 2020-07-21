@@ -18,8 +18,27 @@ model_dao = ModelDao()
 
 @user_app.route('/kakao', methods=['POST'])
 def kakao():
-    """ kakao 로그인 API
+    """kakao 로그인 API.
 
+    Header:
+        Authorizaion
+
+    Args:
+        nickname: 사용자의 닉네임
+        Kakao_id: 카카오톡 소셜 아이디
+
+    Returns:
+        {
+            token: JWT_TOKEN,
+            nickname: 닉네임
+        }, http status code
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
     """
     db = None
     try:
@@ -54,6 +73,21 @@ def kakao():
                 return jsonify(message="DATA_ERROR"), 400
             db.commit()
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
