@@ -95,11 +95,22 @@ def kakao():
         if db:
             db.close()
 
-#이메일 회원가입
 @user_app.route('/sign-up', methods=['POST'])
 def sign_up():
+    """이메일 회원가입
+        
+        Args: 
+            email : 사용자의 이메일
+            nickname : 사용자의 닉네임
+            password : 사용자의 비밀번호
+
+    """
+    db = None
     try:
         db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
         data = request.json
         data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
 
@@ -108,57 +119,119 @@ def sign_up():
         db.commit()
         return '', 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
     except Exception as e:
         db.rollback()
-        return jsonify(message = f'{e}'), 500
-
+        return jsonify(message=f"{e}"), 500
     finally:
         if db:
             db.close()
 
-#이메일 중복 확인
 @user_app.route('/email', methods=['POST'])
 def check_if_email_exist():
-    try:
-        db = db_connector()
-        data = request.json
+    """이메일 중복 확인
 
+        Args:
+            email : 사용자의 이메일
+
+    """
+    db = None
+    try:
+        db = db_connector
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        data = request.json
         email = model_dao.search_email(db, data['email'])
+        
         if email:
             return jsonify(message = "EMAIL_ALREADY_EXIST"), 400
         return jsonify(message = "AVAILABLE_EMAIL"), 200
-
+    
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
     except Exception as e:
-        return jsonify(message = f"{e}"), 500
-
+        return jsonify(message=f"{e}"), 500
     finally:
         if db:
             db.close()
 
-#닉네임 중복 확인
 @user_app.route('/nickname', methods=['POST'])
 def check_if_nickname_exist():
-    try:
-        db = db_connector()
-        data = request.json
+    """닉네임 중복 확인
 
+        Args:
+            nickname : 사용자의 닉네임
+
+    """
+    db = None
+    try:
+        db = db_connector
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        data = request.json
         nickname = model_dao.search_nickname(db, data['nickname'])
+        
         if nickname:
             return jsonify(message = "NICKNAME_ALREADY_EXIST"), 400
         return jsonify(message = "AVAILABLE_NICKNAME"), 200
 
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
     except Exception as e:
-        return jsonify(message = f"{e}")
-
+        return jsonify(message=f"{e}"), 500
     finally:
         if db:
             db.close()
 
-#이메일 로그인
 @user_app.route('/sign-in', methods=['POST'])
 def sign_in():
+    """이메일 로그인
+
+        Args:
+            email : 사용자의 이메일
+            password : 사용자의 비밀번호
+
+        Returns: 
+            token : 로그인시 발행되는 JWT 토큰
+    """
+    db = None
     try:
-        db = db_connector()
+        db = db_connector
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+        
         data = requset.json
         user = model_dao.search_email(db, user['email'])
 
@@ -172,7 +245,19 @@ def sign_in():
 
     except Exception as e:
         return jsonify(message = f"{e}")
-
+    
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
     finally:
         if db:
             db.close()
