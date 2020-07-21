@@ -120,7 +120,7 @@ def sign_up():
 @user_app.route('/email', methods=['POST'])
 def check_if_email_exist():
     try:
-        db = db_connector
+        db = db_connector()
         data = request.json
 
         email = model_dao.search_email(db, data['email'])
@@ -139,7 +139,7 @@ def check_if_email_exist():
 @user_app.route('/nickname', methods=['POST'])
 def check_if_nickname_exist():
     try:
-        db = db_connector
+        db = db_connector()
         data = request.json
 
         nickname = model_dao.search_nickname(db, data['nickname'])
@@ -158,7 +158,7 @@ def check_if_nickname_exist():
 @user_app.route('/sign-in', methods=['POST'])
 def sign_in():
     try:
-        db = db_connector
+        db = db_connector()
         data = requset.json
         user = model_dao.search_email(db, user['email'])
 
@@ -172,6 +172,32 @@ def sign_in():
 
     except Exception as e:
         return jsonify(message = f"{e}")
+
+    finally:
+        if db:
+            db.close()
+
+#회원 탈퇴
+@user_app.route('/<int:user_id>', methods=['DELETE'])
+def membership_withdrawal(user_id):
+    db = None
+    try:
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        db.begin()
+
+        model_dao.delete_user(db, user_id)
+        model_dao.delete_user_diary(db, user_id)
+        model_dao.delete_user_series(db, user_id)
+        model_dao.delete_user_like(db, user_id)
+
+        db.commit()
+        return(''), 200
+
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
 
     finally:
         if db:
