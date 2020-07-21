@@ -437,6 +437,26 @@ class ModelDao:
         except Exception as e:
             raise e
 
+    def change_diary_public(self, db, public, diary_id, user_id):
+        """다이어리 공개 여부 변경.
+
+        Args:
+            public: 공개 여부
+            diary_id: 다이어리 id
+            user_id: 사용자 id
+
+        Return:
+            None
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET public = %s
+                WHERE id in %s AND user_id = %s
+                AND is_deleted = 0
+                """
+                affected_row = cursor.execute(query, (public, diary_id, user_id))
+
     def other_person_diary(self, db, user_id):
         """
         다른 사람 다이어리 모아 보기

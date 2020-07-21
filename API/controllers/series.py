@@ -159,9 +159,8 @@ def change_series_name(series_id):
         DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
         KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
         user_id = 1
         name = request.json['name']
 
@@ -220,9 +219,8 @@ def delete_series(series_id):
         DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
         KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
         user_id = 1
 
         db = db_connector()
@@ -283,9 +281,8 @@ def diaries_series(series_id):
         DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
         KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
         user_id = 1
 
         db = db_connector()
@@ -348,9 +345,8 @@ def insert_serise_diary(series_id):
         DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
         KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
         user_id = 1
 
         # requset body로 들어온 diary id를 tuple로 변경
@@ -417,9 +413,8 @@ def delete_diary(series_id):
         DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
         KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
         user_id = 1
 
         diaries = request.json['diary_id']
