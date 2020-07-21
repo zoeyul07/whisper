@@ -354,7 +354,7 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    def delete_diary_from_series(self, db, diary_id, user_id, series_id):
+    def delete_diaries_from_series(self, db, diary_id, user_id, series_id):
         """시리즈에서 해당 다이어리들 삭제.
 
         Args:
@@ -377,62 +377,5 @@ class ModelDao:
                     raise Exception('EXECUTE_FAILED')
 
                 return None
-        except Exception as e:
-            raise e
-
-    #회원가입시 user 생성
-    def create_user(self, db, email, password, nickname):
-        try:
-            with db.cursor() as cursor:
-                query = """
-                    INSERT INTO users(email, password, nickname)
-                    VALUES(%s, %s, %s)
-                """
-                affected_row = cursor.execute(query, (email, password, nickname))
-                if affected_row == -1:
-                    raise Exception('EXCUTE_FAILED')
-
-                return None
-
-        except Exception as e:
-            raise e
-
-    #가입된 이메일  확인
-    def search_email(self, db, email):
-        try:
-            with db.cursor(pymmysql.cursors.DictCursor) as cursor:
-                query = """
-                    SELECT id, password FROM users
-                    WHERE email = %s
-                    """
-                affected_row = cursor.excecute(query, email)
-                if affected_row = -1:
-                    raise Exception('EXECUTE_FAILED')
-
-                elif affected_row = 1:
-                    return cursor.fetchone()
-
-                return None
-
-        except Exception as e:
-            raise e
-
-    #닉네임 중복 확인
-    def search_nickname(self, db, nickname):
-        try:
-            with db.cursor(pymysql.cursors.DictCursor) as cursor:
-                query = """
-                    SELECT id FROM users
-                    WHERE nickname = %s
-                    """
-                affected_row = cursor.excute(query, nickname)
-                if affected_row = -1:
-                    raise Exception('EXECUTE_FAILED')
-
-                elif affected_row = 1:
-                    return cursor.fetchone()
-
-                return None
-
         except Exception as e:
             raise e

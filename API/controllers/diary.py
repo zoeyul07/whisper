@@ -23,7 +23,7 @@ def emotion():
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         data = model_dao.search_emotion(db)
-        return jsonify(emotion=f"{data}"), 200
+        return jsonify(emotion=data), 200
     except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
@@ -41,10 +41,40 @@ def question():
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         data = model_dao.search_question(db)
-        return jsonify(question=f"{data}"), 200
+        return jsonify(question=data), 200
     except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
         if db:
             db.close()
 
+# 다른 사람 다이어리 모두 보기
+@diary_app.route('/<int:user_id>', methods=['GET'])
+def other_person_diary(user_id):
+    db = None
+    try:
+        db = db_connector()
+
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        data_list = model_dao.other_person_diary(db, user_id)
+
+        other_person = [
+            {
+                "nickname":data['nickname'],
+                "diary_id":data['id'],
+                "emotion_id":data['emotion_id'],
+                "image_url":data['image_url'],
+                "color":data['color'],
+                "summary":data['summary'],
+                "like":True if data['is_deleted'] == 0 else False,
+                "count":model_dao.count_likes(db, data['id'])
+            }for data in data_list
+        ]
+        return jsonify(diary=other_person),200
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()

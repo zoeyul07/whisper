@@ -97,7 +97,7 @@ def kakao():
 
 #이메일 회원가입
 @user_app.route('/sign-up', methods=['POST'])
-def sign_up()
+def sign_up():
     try:
         db = db_connector()
         data = request.json
