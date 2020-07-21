@@ -385,12 +385,12 @@ class ModelDao:
         try:
             with db.cursor() as cursor:
                 query = """
-                    INSERT INTO users(email, password, nickname)
-                    VALUES(%s, %s, %s)
+                INSERT INTO users(email, password, nickname)
+                VALUES(%s, %s, %s)
                 """
                 affected_row = cursor.execute(query, (email, password, nickname))
                 if affected_row == -1:
-                    raise Exception('EXCUTE_FAILED')
+                    raise Exception('EXECUTE_FAILED')
 
                 return None
 
@@ -402,9 +402,9 @@ class ModelDao:
         try:
             with db.cursor(pymmysql.cursors.DictCursor) as cursor:
                 query = """
-                    SELECT id, password FROM users
-                    WHERE email = %s
-                    """
+                SELECT id, password FROM users
+                WHERE email = %s
+                """
                 affected_row = cursor.excecute(query, email)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
@@ -422,9 +422,9 @@ class ModelDao:
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
-                    SELECT id FROM users
-                    WHERE nickname = %s
-                    """
+                SELECT id FROM users
+                WHERE nickname = %s
+                """
                 affected_row = cursor.excute(query, nickname)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
@@ -456,6 +456,89 @@ class ModelDao:
                 AND is_deleted = 0
                 """
                 affected_row = cursor.execute(query, (public, diary_id, user_id))
+
+    def other_person_diary(self, db, user_id):
+        """
+        다른 사람 다이어리 모아 보기
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT diaries.id, emotion_id, image_url, color, summary, public, diaries.is_deleted, likes.is_deleted, users.nickname FROM diaries
+                INNER JOIN emotions ON diaries.emotion_id = emotions.id
+                INNER JOIN users ON diaries.user_id = %s
+                LEFT JOIN likes ON diaries.id = likes.diary_id
+                WHERE diaries.is_deleted = 0
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except Exception as e:
+            raise e
+
+    def delete_user(self, db, user_id):
+        """
+        회원 탈퇴
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                UPDATE users SET is_deleted=1 WHERE id = %s
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def delete_user_diary(self, db, user_id):
+        """
+        회원탈퇴한 사람 다이어리 일괄 삭제
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                UPDATE diaries SET is_deleted=1 WHERE user_id = %s
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def delete_user_like(self, db, user_id):
+        """
+        회원탈퇴한 사람 좋아요 일괄 삭제
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                UPDATE likes SET is_deleted=1 WHERE user_id = %s
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def delete_user_series(serlf, db, user_id):
+        """
+        회원탈퇴한 사람 시리즈 일괄 삭제
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                UPDATE series SET is_deleted=1 WHERE user_id = %s
+                """
+                affected_row = cursor.execute(query, user_id)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
