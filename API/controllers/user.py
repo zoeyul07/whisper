@@ -229,7 +229,7 @@ def sign_in():
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
-        data = requset.json
+        data = request.json
         user = model_dao.search_email(db, user['email'])
 
         if email:
