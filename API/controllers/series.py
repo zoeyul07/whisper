@@ -90,8 +90,16 @@ def find_user_series():
     Headers:
         token
 
-    Args:
+    Return:
+        {data}, http status code
 
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     db = None
     try:
@@ -131,8 +139,25 @@ def find_user_series():
 
 @series_app.route('/<int:series_id>', methods=['PUT'])
 def change_series_name(series_id):
-    """시리즈 이름 변경 API
+    """시리즈 이름 변경 API.
 
+    Headers:
+        token
+
+    Args:
+       series_id: 시리즈 id
+       name: 변경할 시리즈 이름
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     try:
         db = None
@@ -179,7 +204,21 @@ def delete_series(series_id):
     """시리즈 삭제하는 API.
 
     Header:
+        token
 
+    Args:
+        series_id: 시리즈 id
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     try:
         db = None
@@ -225,8 +264,24 @@ def delete_series(series_id):
 
 @series_app.route('diary/<int:series_id>', methods=['GET'])
 def diaries_series(series_id):
-    """시리즈별 다이어리 보여주는 API
+    """시리즈별 다이어리 보여주는 API.
 
+    Headers:
+        token
+
+    Args:
+        series_id: 시리즈 id
+
+    Return:
+        {diary}, http status code
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     try:
         db = None
@@ -273,7 +328,25 @@ def diaries_series(series_id):
 
 @series_app.route('diary/<int:series_id>', methods=['POST'])
 def insert_serise_diary(series_id):
-    """시리즈에 다이어리 추가 API
+    """시리즈에 다이어리 추가 API.
+
+    Headers:
+        token
+
+    Args:
+        series_id: 시리즈 id
+        diary_id: 다이어리 id
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     try:
         db = None
@@ -324,8 +397,25 @@ def insert_serise_diary(series_id):
 
 @series_app.route('diary/<int:series_id>', methods=['DELETE'])
 def delete_diary(series_id):
-    """
-    시리즈에서 다이어리 삭제하는 API
+    """시리즈에서 다이어리 삭제하는 API.
+
+    Headers:
+        token
+
+    Args:
+        series_id: 시리즈 id
+        diary_id: 다이어리 id
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     try:
         db = None
