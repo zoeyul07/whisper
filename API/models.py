@@ -456,6 +456,13 @@ class ModelDao:
                 AND is_deleted = 0
                 """
                 affected_row = cursor.execute(query, (public, diary_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+
+        except Exception as e:
+            raise e
 
     def other_person_diary(self, db, user_id):
         """
