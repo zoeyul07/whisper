@@ -230,7 +230,7 @@ def sign_in():
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         data = request.json
-        user = model_dao.search_email(db, user['email'])
+        user = model_dao.search_email(db, data['email'])
 
         if email:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
