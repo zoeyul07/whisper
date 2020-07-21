@@ -406,10 +406,10 @@ class ModelDao:
                     WHERE email = %s
                     """
                 affected_row = cursor.excecute(query, email)
-                if affected_row = -1:
+                if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
-                elif affected_row = 1:
+                elif affected_row == 1:
                     return cursor.fetchone()
 
                 return None
@@ -426,13 +426,39 @@ class ModelDao:
                     WHERE nickname = %s
                     """
                 affected_row = cursor.excute(query, nickname)
-                if affected_row = -1:
+                if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
-                elif affected_row = 1:
+                elif affected_row == 1:
                     return cursor.fetchone()
 
                 return None
 
+        except Exception as e:
+            raise e
+
+    def change_diary_public(self, db, public, diary_id, user_id):
+        """다이어리 공개 여부 변경.
+
+        Args:
+            public: 공개 여부
+            diary_id: 다이어리 id
+            user_id: 사용자 id
+
+        Return:
+            None
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE diaries SET public = %s
+                WHERE id in %s AND user_id = %s
+                AND is_deleted = 0
+                """
+                affected_row = cursor.execute(query, (public, diary_id, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
         except Exception as e:
             raise e
