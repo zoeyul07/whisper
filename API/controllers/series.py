@@ -8,12 +8,14 @@ from flask import Blueprint, request, jsonify
 
 from connections import db_connector
 from models import ModelDao
+from decorator import login_required
 
 series_app = Blueprint("series_app", __name__)
 model_dao = ModelDao()
 
 @series_app.route('', methods=['POST'])
-def new_series():
+@login_required
+def new_series(**kwargs):
     """새로운 시리즈 생성 API.
 
     Headers:
@@ -37,7 +39,7 @@ def new_series():
     db = None
     try:
         # user_id = 토큰에서 받아온 user_id
-        user_id = 1
+        user_id = kwargs['id']
         name = request.json['name']
 
         db = db_connector()
@@ -84,7 +86,8 @@ def new_series():
             db.close()
 
 @series_app.route('', methods=['GET'])
-def find_user_series():
+@login_required
+def find_user_series(**kwargs):
     """user별 시리즈 조회.
 
     Headers:
@@ -103,7 +106,7 @@ def find_user_series():
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
 
         db = db_connector()
         if db is None:
@@ -138,7 +141,8 @@ def find_user_series():
             db.close()
 
 @series_app.route('/<int:series_id>', methods=['PUT'])
-def change_series_name(series_id):
+@login_required
+def change_series_name(**kwargs):
     """시리즈 이름 변경 API.
 
     Headers:
@@ -161,7 +165,9 @@ def change_series_name(series_id):
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
+
         name = request.json['name']
 
         db = db_connector()
@@ -199,7 +205,8 @@ def change_series_name(series_id):
             db.close()
 
 @series_app.route('/<int:series_id>', methods=['DELETE'])
-def delete_series(series_id):
+@login_required
+def delete_series(**kwargs):
     """시리즈 삭제하는 API.
 
     Header:
@@ -221,7 +228,8 @@ def delete_series(series_id):
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         db = db_connector()
         if db is None:
@@ -261,7 +269,8 @@ def delete_series(series_id):
             db.close()
 
 @series_app.route('diary/<int:series_id>', methods=['GET'])
-def diaries_series(series_id):
+@login_required
+def diaries_series(**kwargs):
     """시리즈별 다이어리 보여주는 API.
 
     Headers:
@@ -283,7 +292,8 @@ def diaries_series(series_id):
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         db = db_connector()
         if db is None:
@@ -324,7 +334,8 @@ def diaries_series(series_id):
             db.close()
 
 @series_app.route('diary/<int:series_id>', methods=['POST'])
-def insert_serise_diary(series_id):
+@login_required
+def insert_serise_diary(**kwargs):
     """시리즈에 다이어리 추가 API.
 
     Headers:
@@ -347,7 +358,8 @@ def insert_serise_diary(series_id):
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         # requset body로 들어온 diary id를 tuple로 변경
         diaries = request.json['diary_id']
@@ -392,7 +404,8 @@ def insert_serise_diary(series_id):
             db.close()
 
 @series_app.route('diary/<int:series_id>', methods=['DELETE'])
-def delete_diary(series_id):
+@login_required
+def delete_diary(**kwargs):
     """시리즈에서 다이어리 삭제하는 API.
 
     Headers:
@@ -415,7 +428,8 @@ def delete_diary(series_id):
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         diaries = request.json['diary_id']
 

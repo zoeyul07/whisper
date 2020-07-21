@@ -98,8 +98,8 @@ def kakao():
 @user_app.route('/sign-up', methods=['POST'])
 def sign_up():
     """이메일 회원가입
-        
-        Args: 
+
+        Args:
             email : 사용자의 이메일
             nickname : 사용자의 닉네임
             password : 사용자의 비밀번호
@@ -157,11 +157,11 @@ def check_if_email_exist():
 
         data = request.json
         email = model_dao.search_email(db, data['email'])
-        
+
         if email:
             return jsonify(message = "EMAIL_ALREADY_EXIST"), 400
         return jsonify(message = "AVAILABLE_EMAIL"), 200
-    
+
     except pymysql.err.InternalError:
         return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
     except pymysql.err.OperationalError:
@@ -194,7 +194,7 @@ def check_if_nickname_exist():
 
         data = request.json
         nickname = model_dao.search_nickname(db, data['nickname'])
-        
+
         if nickname:
             return jsonify(message = "NICKNAME_ALREADY_EXIST"), 400
         return jsonify(message = "AVAILABLE_NICKNAME"), 200
@@ -223,7 +223,7 @@ def sign_in():
             email : 사용자의 이메일
             password : 사용자의 비밀번호
 
-        Returns: 
+        Returns:
             token : 로그인시 발행되는 JWT 토큰
     """
     db = None
@@ -231,7 +231,7 @@ def sign_in():
         db = db_connector
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
-        
+
         data = requset.json
         user = model_dao.search_email(db, user['email'])
 
@@ -245,7 +245,7 @@ def sign_in():
 
     except Exception as e:
         return jsonify(message = f"{e}")
-    
+
     except pymysql.err.InternalError:
         return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
     except pymysql.err.OperationalError:
