@@ -87,6 +87,11 @@ def new_series():
 def find_user_series():
     """user별 시리즈 조회.
 
+    Headers:
+        token
+
+    Args:
+
     """
     db = None
     try:
@@ -171,7 +176,9 @@ def change_series_name(series_id):
 
 @series_app.route('/<int:series_id>', methods=['DELETE'])
 def delete_series(series_id):
-    """시리즈 삭제하는 API
+    """시리즈 삭제하는 API.
+
+    Header:
 
     """
     try:
