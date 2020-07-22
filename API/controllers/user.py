@@ -247,9 +247,6 @@ def sign_in():
             return jsonify(message = "PASSWORD_DOES_NOT_MATCH"), 400
         return jsonify(message = "EMAIL_DOES_NOT_EXIST"), 400
 
-    except Exception as e:
-        return jsonify(message = f"{e}")
-
     except pymysql.err.InternalError:
         return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
     except pymysql.err.OperationalError:

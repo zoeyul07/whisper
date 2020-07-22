@@ -400,12 +400,12 @@ class ModelDao:
     #가입된 이메일  확인
     def search_email(self, db, email):
         try:
-            with db.cursor(pymmysql.cursors.DictCursor) as cursor:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
                 SELECT id, password FROM users
                 WHERE email = %s
                 """
-                affected_row = cursor.excecute(query, email)
+                affected_row = cursor.execute(query, email)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
