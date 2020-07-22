@@ -1,32 +1,34 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
-interface InputProps {
+interface UserStoryProps {
+  fontStyle?: string;
   textAlign: string;
 }
 
-interface SizeProps {
+interface BoxSizeProps {
   width: string;
   height: string;
 }
 
 const UserInput: React.FC = () => {
-  const [userInput, setUserInput] = useState("");
+  const [userStory, setUserStory] = useState("");
   const [textAlign, setTextAlign] = useState("left");
+  const [fontStyle, setFontStyle] = useState("");
 
-  const width = "97%";
+  const [userSentence, setUserSentence] = useState("");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUserInput(e.target.value);
+  const handleButtonClick = () => {
+    console.log("PostButton 클릭");
   };
 
   return (
     <UserInputWrapper>
       <ControlBar>
         <ButtonGroup>
-          <ButtonBold />
-          <ButtonItalic />
-          <ButtonUnderline />
+          <ButtonBold onClick={() => setFontStyle("bold")} />
+          <ButtonItalic onClick={() => setFontStyle("italic")} />
+          <ButtonUnderline onClick={() => setFontStyle("underline")} />
         </ButtonGroup>
         <ButtonGroup>
           <ButtonAlignLeft onClick={() => setTextAlign("left")} />
@@ -35,17 +37,28 @@ const UserInput: React.FC = () => {
         </ButtonGroup>
       </ControlBar>
 
-      <InputBox
+      <StoryInput
         placeholder="당신의 이야기를 적어보세요..."
-        value={userInput}
-        onChange={(e) => handleInputChange(e)}
+        value={userStory}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+          setUserStory(e.target.value)
+        }
+        fontStyle={fontStyle}
         textAlign={textAlign}
       />
-      <WriteToday width="97%" height="50px">
-        <Today>오늘의 한 줄</Today>
-        <TodayInput />
-      </WriteToday>
-      {console.log(userInput)}
+      <WriteTodayWrapper width="97%" height="">
+        <WriteToday width="100%" height="50px">
+          <Today>오늘의 한 줄</Today>
+          <TodayInput
+            value={userSentence}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setUserSentence(e.target.value)
+            }
+          />
+        </WriteToday>
+        <PostButton onClick={handleButtonClick}>이야기 하기</PostButton>
+      </WriteTodayWrapper>
+      {console.log(userStory)}
       {console.log(textAlign)}
     </UserInputWrapper>
   );
@@ -56,7 +69,7 @@ export default UserInput;
 const UserInputWrapper = styled.div`
   margin: 5em auto;
   width: 1323px;
-  height: 851px;
+  /* height: 851px; */
   /* background-color: #d8d8d8; */
   /* border: 1px solid #686565; */
 `;
@@ -108,7 +121,12 @@ const ButtonAlignRight = styled.button`
   ${Button};
 `;
 
-const InputBox = styled.textarea`
+/** font-weight: bold;
+ *  font-style: italic;
+ *  text-decoration: underline;
+ */
+
+const StoryInput = styled.textarea<UserStoryProps>`
   width: 97%;
   height: 780px;
   margin: 1.5em 1em;
@@ -116,20 +134,34 @@ const InputBox = styled.textarea`
   border: 1px solid #828282;
   resize: none;
   font-size: 20px;
-  text-align: ${(props: InputProps) => props.textAlign};
+  font-weight: ${({ fontStyle }) => fontStyle};
+  font-style: ${({ fontStyle }) => fontStyle};
+  text-decoration: ${({ fontStyle }) => fontStyle};
+  text-align: ${({ textAlign }) => textAlign};
 
   ::placeholder {
     font-size: 20px;
+    opacity: 0.7;
   }
 `;
 
-const WriteToday = styled.div<SizeProps>`
+const WriteTodayWrapper = styled.div<BoxSizeProps>`
   display: flex;
+  flex-direction: column;
   vertical-align: center;
   justify-content: space-around;
   width: ${({ width }) => width};
   height: ${({ height }) => height};
   margin: 1.5em auto;
+`;
+
+const WriteToday = styled.div<BoxSizeProps>`
+  display: flex;
+  flex-direction: row;
+  vertical-align: center;
+  justify-content: space-around;
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
 `;
 
 const Today = styled.span`
@@ -141,9 +173,24 @@ const Today = styled.span`
 `;
 
 const TodayInput = styled.input`
-  width: 83%;
+  width: 87%;
+  padding: 0 10px;
+  font-size: 21px;
   height: max-height;
   border: 1px solid #686565;
   border-radius: 4px;
   opacity: 0.7;
+`;
+
+const PostButton = styled.button`
+  margin: 2em 0.5em;
+  width: 200px;
+  height: 60px;
+  font-size: 24px;
+  letter-spacing: 0.69px;
+  color: #f2f2f2;
+  font-family: "AppleSDGothicNeo-Bold";
+  background-color: #faa02a;
+  border-radius: 30px;
+  align-self: flex-end;
 `;
