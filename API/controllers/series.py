@@ -10,7 +10,7 @@ from connections import db_connector
 from models import ModelDao
 from decorator import login_required
 
-series_app = kwargsBlueprint("series_app", __name__)
+series_app = Blueprint("series_app", __name__)
 model_dao = ModelDao()
 
 @series_app.route('', methods=['POST'])
