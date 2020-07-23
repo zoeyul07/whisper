@@ -90,7 +90,7 @@ class ModelDao:
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query ="""
-                SELECT users.id FROM users INNER JOIN socials
+                SELECT users.id, users.nickname FROM users INNER JOIN socials
                 ON users.social_id = socials.id
                 WHERE kakao_id = %s;
                 """
