@@ -45,7 +45,6 @@ def kakao():
     try:
         access_token = request.headers['Authorization']
         nickname = request.get_json(silent=True)
-
         if not access_token:
             return jsonify(message="TOKEN_DOES_NOT_EXIST"), 400
 
@@ -61,7 +60,7 @@ def kakao():
         if kakao_user:
             nickname = kakao_user['nickname']
             token = jwt.encode(kakao_user, SECRET_KEY, ALGORITHM)
-            return jsonify(token=token.decode('utf-8'), nickname=nickname), 200
+            return jsonify(token=token.decode('utf-8'), nickname=nickname, message="SIGN_IN_COMPLETE"), 200
 
         # 가입되어있지 않은 계정인 경우 회원가입 진행
         elif kakao_user is None:
@@ -75,7 +74,7 @@ def kakao():
             kakao_user = model_dao.insert_kakao_into_user(db, social_id, nickname)
             token = jwt.encode({"id":kakao_user}, SECRET_KEY, ALGORITHM)
             db.commit()
-            return jsonify(token=token.decode('utf-8'), nickname=nickname), 200
+            return jsonify(token=token.decode('utf-8'), nickname=nickname, message="SIGN_UP_COMPLETE"), 200
 
     except pymysql.err.InternalError:
         db.rollback()
