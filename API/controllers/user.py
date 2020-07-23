@@ -7,8 +7,8 @@ import jwt
 import pymysql
 import bcrypt
 
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
-from jsonschema import validate, ValidationError
 from connections import db_connector
 from my_settings import SECRET_KEY, ALGORITHM
 from models import ModelDao
@@ -231,8 +231,8 @@ def sign_in():
 
         data = request.json
         user = model_dao.search_email(db, data['email'])
-
-        if email:
+        
+        if user:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
                 token = jwt.encode(
                     {
@@ -241,7 +241,7 @@ def sign_in():
                     },
                     SECRET_KEY,
                     ALGORITHM
-                )
+                ).decode('utf-8')
                 return jsonify(token = token), 200
 
             return jsonify(message = "PASSWORD_DOES_NOT_MATCH"), 400

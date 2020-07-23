@@ -380,8 +380,8 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    #회원가입시 user 생성
     def create_user(self, db, email, password, nickname):
+        """회원가입시 user 생성"""
         try:
             with db.cursor() as cursor:
                 query = """
@@ -397,8 +397,8 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    #가입된 이메일  확인
     def search_email(self, db, email):
+        """가입된 이메일 확인"""
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
@@ -417,8 +417,8 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    #닉네임 중복 확인
     def search_nickname(self, db, nickname):
+        """닉네임 중복 확인"""
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
