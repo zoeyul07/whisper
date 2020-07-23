@@ -475,7 +475,7 @@ class ModelDao:
                 INNER JOIN emotions ON diaries.emotion_id = emotions.id
                 INNER JOIN users ON diaries.user_id = %s
                 LEFT JOIN likes ON diaries.id = likes.diary_id
-                WHERE diaries.is_deleted = 0
+                WHERE diaries.is_deleted = 0 AND public = 0
                 """
                 affected_row = cursor.execute(query, user_id)
                 if affected_row == -1:
@@ -552,3 +552,38 @@ class ModelDao:
                 return None
         except Exception as e:
             raise e
+
+    def search_all_diaries(self, db):
+        """
+        모든 다이어리 모아 보기
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query ="""
+                SELECT nickname,diaries.id,emotions.id,image_url,color,summary
+                """
+                affected_row = cursor.execute(query)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
+        except  Exception as e:
+            raise e
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

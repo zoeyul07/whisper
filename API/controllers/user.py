@@ -12,6 +12,7 @@ from jsonschema import validate, ValidationError
 from connections import db_connector
 from my_settings import SECRET_KEY, ALGORITHM
 from models import ModelDao
+from decorator import login_required
 
 user_app = Blueprint('user', __name__)
 model_dao = ModelDao()
@@ -267,16 +268,37 @@ def sign_in():
             db.close()
 
 #회원 탈퇴
-@user_app.route('/<int:user_id>', methods=['DELETE'])
-def membership_withdrawal(user_id):
+@user_app.route('', methods=['DELETE'])
+@login_required
+def membership_withdrawal(**kwargs):
+    """회원 탈퇴 API
+
+    Headers:
+        token
+
+    Args:
+        None
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntergrityError: Key의 무결성을 헤쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
+    """
     db = None
     try:
+        user_id = kwargs['id']
+
         db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         db.begin()
-
         model_dao.delete_user(db, user_id)
         model_dao.delete_user_diary(db, user_id)
         model_dao.delete_user_series(db, user_id)
@@ -285,9 +307,27 @@ def membership_withdrawal(user_id):
         db.commit()
         return(''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
+        db.rollback()
         return jsonify(message=f"{e}"), 500
-
     finally:
         if db:
-            db.close()
+            db.close
