@@ -6,6 +6,7 @@ sys.path.extend([BASE_DIR])
 import jwt
 import pymysql
 import bcrypt
+import requests
 
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
@@ -43,14 +44,13 @@ def kakao():
     """
     db = None
     try:
-        token = request.headers['Authorization']
-        nickname = request.get_json(silent=True).get('nickname', None)
-
-        if not token:
+        access_token = request.headers['Authorization']
+        nickname = request.get_json(silent=True)
+        if not access_token:
             return jsonify(message="TOKEN_DOES_NOT_EXIST"), 400
 
-        data = request.get('https://kapi.kakao.com/v2/user/me', headers={'Authorization':f'Bearer {token}'})
-        kakao_id = data.json()['kakao_id']
+        data = requests.get('https://kapi.kakao.com/v2/user/me', headers={'Authorization':f'Bearer {access_token}'})
+        kakao_id = data.json()['id']
 
         db = db_connector()
         if db is None:
@@ -59,20 +59,23 @@ def kakao():
         kakao_user = model_dao.search_kakao_user(db, kakao_id)
         # 가입된 계정인 경우 로그인 진행
         if kakao_user:
+            nickname = kakao_user['nickname']
             token = jwt.encode(kakao_user, SECRET_KEY, ALGORITHM)
-            return Jsonify(token=token.decode('utf-8'), nickname=nickname), 200
+            return jsonify(token=token.decode('utf-8'), nickname=nickname, message="SIGN_IN_COMPLETE"), 200
+
         # 가입되어있지 않은 계정인 경우 회원가입 진행
         elif kakao_user is None:
+            # 닉네임 입력하지 않은 경우 에러처리
+            if nickname is None:
+                return jsonify(message="DATA_ERROR"), 400
+
             db.begin()
             social_id = model_dao.insert_kakao_user(db, kakao_id)
-            if nickname:
-                kakao_user = model_dao.insert_kakao_into_user(db, social_id, nickname)
-                token = jwt.encode(kakao_user, SECRET_KEY, ALGORITHM)
-                return Jsonify(token=token.decode('utf-8'), nickname=nickname), 200
-            # 닉네임 입력하지 않은 경우 에러처리
-            elif nickname is None:
-                return jsonify(message="DATA_ERROR"), 400
+            nickname = nickname['nickname']
+            kakao_user = model_dao.insert_kakao_into_user(db, social_id, nickname)
+            token = jwt.encode({"id":kakao_user}, SECRET_KEY, ALGORITHM)
             db.commit()
+            return jsonify(token=token.decode('utf-8'), nickname=nickname, message="SIGN_UP_COMPLETE"), 200
 
     except pymysql.err.InternalError:
         db.rollback()
@@ -236,7 +239,7 @@ def sign_in():
 
         data = request.json
         user = model_dao.search_email(db, data['email'])
-        
+
         if user:
             if bcrypt.checkpw(data['password'].encode('utf-8'), user['password'].encode('utf-8')):
                 token = jwt.encode(
