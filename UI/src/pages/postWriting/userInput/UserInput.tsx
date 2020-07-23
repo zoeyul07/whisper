@@ -60,6 +60,7 @@ const UserInput: React.FC = () => {
       </WriteTodayWrapper>
       {console.log(userStory)}
       {console.log(textAlign)}
+      {console.log(userSentence)}
     </UserInputWrapper>
   );
 };
