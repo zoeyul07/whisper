@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Card from "../../components/card/Card";
+import EightCards from "../../components/eightCards/EightCards";
 
 const MorePage: React.FC = () => {
   const data = {
@@ -34,6 +35,7 @@ const MorePage: React.FC = () => {
           }}
         />
       </MainCardsContainer>
+      <EightCards width={"1440px"} height={"950px"} />
     </MorePageWrapper>
   );
 };
