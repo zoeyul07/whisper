@@ -111,8 +111,12 @@ def sign_up():
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         data = request.json
+        email = model_dao.search_email(db, data['email'])
+        if email:
+            return jsonify(message="EMAIL_EXIST"), 400
+        
         data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-
+        
         db.begin()
         model_dao.create_user(db, data['email'], data['password'], data['nickname'])
         db.commit()
