@@ -4,7 +4,8 @@ import GlobalStyle from "./Config";
 import SignIn from "./pages/signIn/SignIn";
 import SignUp from "./pages/signUp/SignUp";
 import EmailSignUp from "./pages/signUp/EmailSignUp";
-import postWriting from "./pages/postWriting/PostWriting";
+import PostWriting from "./pages/postWriting/PostWriting";
+import MorePage from "./pages/morePage/MorePage";
 
 function Routes() {
   return (
@@ -14,7 +15,8 @@ function Routes() {
         <Route exact path="/" component={SignIn} />
         <Route exact path="/signUp" component={SignUp} />
         <Route exact path="/signUp/email" component={EmailSignUp} />
-        <Route exact path="/post/writing" component={postWriting} />
+        <Route exact path="/post/writing" component={PostWriting} />
+        <Route exact path="/more" component={MorePage} />
       </Switch>
     </Router>
   );
