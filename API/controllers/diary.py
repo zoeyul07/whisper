@@ -5,6 +5,7 @@ sys.path.extend([BASE_DIR])
 
 import pymysql
 from flask import Blueprint, jsonify, request
+from jsonschema import validate, ValidationError
 
 from connections import db_connector
 from models import ModelDao
@@ -51,9 +52,12 @@ def question():
 
 # 다른 사람 다이어리 모두 보기
 @diary_app.route('/<int:user_id>', methods=['GET'])
-def other_person_diary(user_id):
+def other_person_diary(**kwargs):
     db = None
     try:
+
+        users_id = kwargs['id']
+
         db = db_connector()
 
         if db is None:
@@ -69,7 +73,7 @@ def other_person_diary(user_id):
                 "image_url":data['image_url'],
                 "color":data['color'],
                 "summary":data['summary'],
-                "like":True if data['is_deleted'] == 0 else False,
+                "like":True if model_dao.search_is_like(db, users_id, data['id']) == 1 else False,
                 "count":model_dao.count_likes(db, data['id'])
             }for data in data_list
         ]
@@ -157,3 +161,66 @@ def change_public(**kwargs):
     finally:
         if db:
             db.close()
+
+@diary_app.route('', methods=['GET'])
+#@login_required
+def select_all_diaries(**kwargs):
+    """
+    모든 다이어리 보기
+    """
+    db = None
+    try:
+        #user_id = kwargs['id']
+
+        # pagination 조건 생성
+        filter_dict = {}
+        filter_dict['limit'] = request.args.get('limit', 10, int)
+        filter_dict['offset'] = request.args.get('offset', 0, int)
+
+        db =db_connector()
+
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        all_diary_list = model_dao.search_all_diaries(db, filter_dict)
+        like_count = model_dao.search_is_like(db, user_id)
+
+        all_diary = [
+            {
+                "nickname":diary['nickname'],
+                "diary_id":diary['id'],
+                "emotion_id":diary['emotion_id'],
+                "image_url":diary['image_url'],
+                "color":diary['color'],
+                "summary":diary['summary'],
+                "like":True if model_dao.search_is_like(db, user_id, diary['id']) == 1 else False,
+                "count":model_dao.count_likes(db, diary['id'])
+            }for diary in all_diary_list
+        ]
+        return jsonify(diary=all_diary),200
+
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
