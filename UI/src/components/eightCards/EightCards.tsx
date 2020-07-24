@@ -35,7 +35,7 @@ export default EightCards;
 const EightCardsWrapper = styled.div<WrapperProps>`
   display: grid;
   margin: 160px auto;
-  grid-gap: 10px;
+  grid-gap: 25px;
   grid-template-rows: repeat(2, 1fr);
   grid-template-columns: repeat(4, 1fr);
   width: ${({ width }) => width};

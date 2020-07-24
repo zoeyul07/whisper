@@ -38,7 +38,7 @@ const NavWrapper = styled.div<HeightProps>`
 const Title = styled.span<HeightProps>`
   line-height: ${({ height }) => height};
   font-family: "AppleSDGothicNeo-SemiBold";
-  font-size: 24px;
+  font-size: 26px;
   text-align: center;
   letter-spacing: 0;
 `;

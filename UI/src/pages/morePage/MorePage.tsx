@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import Nav from "../../components/nav/Nav";
+import Emotion from "../../components/emotion/Emotion";
 import Card from "../../components/card/Card";
 import EightCards from "../../components/eightCards/EightCards";
 
@@ -11,10 +12,67 @@ const MorePage: React.FC = () => {
     imgUrl: "",
   };
 
+  const emotionProps = {
+    width: "auto",
+    height: "auto",
+    emotion: "행복",
+  };
+
   return (
     <MorePageWrapper>
       <Nav />
-      <Banner></Banner>
+      <Banner>
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+      </Banner>
       <MainCardsContainer>
         <Card
           width="630px"
@@ -54,8 +112,8 @@ const Banner = styled.div`
   display: flex;
   justify-content: space-around;
   /* width: 1440px; */
-  height: 190px;
-  padding: 2em 0;
+  height: 210px;
+  padding: 2em 80px;
   background-color: #f8f8f4;
 `;
 
