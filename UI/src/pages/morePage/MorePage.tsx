@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
+import Nav from "../../components/nav/Nav";
 import Card from "../../components/card/Card";
 import EightCards from "../../components/eightCards/EightCards";
 
@@ -12,6 +13,7 @@ const MorePage: React.FC = () => {
 
   return (
     <MorePageWrapper>
+      <Nav />
       <Banner></Banner>
       <MainCardsContainer>
         <Card
