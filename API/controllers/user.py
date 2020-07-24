@@ -118,9 +118,9 @@ def sign_up():
         email = model_dao.search_email(db, data['email'])
         if email:
             return jsonify(message="EMAIL_EXIST"), 400
-        
+
         data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-        
+
         db.begin()
         model_dao.create_user(db, data['email'], data['password'], data['nickname'])
         db.commit()
@@ -335,3 +335,64 @@ def membership_withdrawal(**kwargs):
     finally:
         if db:
             db.close
+
+#google 로그인
+@user_app.route('', methods=['POST'])
+def google():
+    db = None
+    try:
+        GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/tokeninfo?id_token='
+        CORRECT_ISS_LIST = ['accounts.google.com', 'https://accounts.google.com']
+
+        token = request.headers['Authorization']
+        nickname = request.get_json(silent=True).get('nickname', None)
+
+        if not token:
+            return jsonify(message="TOKEN_DOES_NOT_EXIST"), 400
+
+        data = request.json
+        google_id = data['googleId']
+        google_token = data['token']
+
+        token_data = json.loads(requests.get(GOOGLE_AUTH_URL + google_token).text)
+
+        if (token_data['iss'] not in CORRECT_ISS_LIST) or (token_data['sub'] != google_id):
+            return {'message': 'MODIFIED_TOKEN'}, 401
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        google_user = model_dao.serch_google_user(db, google_id)
+        # 가입된 계정인 경우 로그인 진행
+        if google_user:
+            token = jwt.encode(google_user, SECRET_KEY, ALGORITHM)
+            return jsonify(token=token.decode('utf-8'), nickname=nickname), 200
+
+        elif google_user is None:
+            db.begin()
+            social_id = model_dao.insert_google_user(db, google_id)
+            if nickname:
+                google_user = model_dao.insert_google_user(db, social_id, nickname)
+                token = jwt.encode(google_user, SECRET_KEY, ALGORITHM)
+                return jsonify(token=token.decode('utf-8'), nickname=nickname), 200
+
+            elif nickname is None:
+                return jsonify(message="DATA_ERROR"), 400
+            db.commit()
+
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()

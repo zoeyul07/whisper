@@ -475,7 +475,7 @@ class ModelDao:
                 INNER JOIN emotions ON diaries.emotion_id = emotions.id
                 INNER JOIN users ON diaries.user_id = %s
                 LEFT JOIN likes ON diaries.id = likes.diary_id
-                WHERE diaries.is_deleted = 0 AND public = 0
+                WHERE diaries.is_deleted = 0 AND public = 1 AND is_completed = 1
                 """
                 affected_row = cursor.execute(query, user_id)
                 if affected_row == -1:
@@ -553,16 +553,41 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    def search_all_diaries(self, db):
+    def pagination(self, filter_dict):
+        """
+        페이지네이션 함수
+        """
+        try:
+            pagination_query = "LIMIT %(limit)s "
+            if filter_dict['offset']:
+                query = "OFFSET %(offset)s "
+                pagination_query = pagination_query + query
+
+            return pagination_query
+
+        except Exception as e:
+            raise e
+
+    def search_all_diaries(self, db, filter_dict):
         """
         모든 다이어리 모아 보기
         """
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query ="""
-                SELECT nickname,diaries.id,emotions.id,image_url,color,summary
+                SELECT diaries.id, emotion_id, image_url, color, summary, public, is_completed, diaries.created_at, diaries.is_deleted, likes.is_deleted, users.nickname FROM diaries
+                INNER JOIN emotions ON diaries.emotion_id = emotions.id
+                INNER JOIN users ON diaries.user_id = users.id
+                LEFT JOIN likes ON diaries.id = likes.diary_id
+                WHERE diaries.is_deleted = 0 AND public = 1 AND is_completed = 1
+                ORDER BY diaries.created_at DESC
                 """
-                affected_row = cursor.execute(query)
+
+                pagination_query = self.pagination(filter_dict)
+
+                query = query + pagination_query
+
+                affected_row = cursor.execute(query, filter_dict)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
 
@@ -570,20 +595,70 @@ class ModelDao:
         except  Exception as e:
             raise e
 
+    def search_is_like(self, db, user_id, diary_id):
+        """
+        해당 유저가 해당 다이어리에 좋아요 눌렀는지 확인
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT COUNT(*) FROM whisper.likes
+                WHERE user_id = %s AND diary_id = %s AND is_deleted = 0
+                """
+                affected_row = cursor.execute(query, (user_id, diary_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
 
+                return cursor.fetchall()['COUNT(*)']
+        except Exception as e:
+            raise e
 
+    def insert_google_user(self, db, social_id, nickname):
+        """google 회원가입 user를 user에 추가.
 
+        Args:
+            social_id: 소셜 유저의 id
 
+        Return:
+            users 테이블의 마지막 column id
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                INSERT INTO users(social_id, nickname)
+                VALUES(%s, %s)
+                """
+                affected_row = cursor.execute(query, (social_id, nickname))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
 
+                return cursor.lastrowid
+        except Exception as e:
+            raise e
 
+    def search_google_user(self, db, google_id):
+        """google 소셜 로그인.
 
+        Args:
+        google_id: 구글 소셜 아이디
 
+        Return:
+        google_id가 있으면 user_id 없으면 None
 
-
-
-
-
-
-
-
-
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query ="""
+                SELECT users.id FROM users INNER JOIN socials
+                ON users.social_id = socials.id
+                WHERE google_id = %s
+                """
+                affected_row = cursor.execute(query, google_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+                elif affected_row == 1:
+                    return cursor.fetchone()
+                elif affected_row == 0:
+                    return None
+        except Exception as e:
+            raise e
