@@ -337,22 +337,19 @@ def membership_withdrawal(**kwargs):
             db.close
 
 #google 로그인
-@user_app.route('', methods=['POST'])
+@user_app.route('/google', methods=['POST'])
 def google():
     db = None
     try:
+
+        data = request.json
+
         GOOGLE_AUTH_URL = 'https://oauth2.googleapis.com/tokeninfo?id_token='
         CORRECT_ISS_LIST = ['accounts.google.com', 'https://accounts.google.com']
 
-        token = request.headers['Authorization']
-        nickname = request.get_json(silent=True).get('nickname', None)
-
-        if not token:
-            return jsonify(message="TOKEN_DOES_NOT_EXIST"), 400
-
-        data = request.json
         google_id = data['googleId']
         google_token = data['token']
+        nickname = request.get_json(silent=True).get('nickname', None)
 
         token_data = json.loads(requests.get(GOOGLE_AUTH_URL + google_token).text)
 
@@ -373,7 +370,7 @@ def google():
             db.begin()
             social_id = model_dao.insert_google_user(db, google_id)
             if nickname:
-                google_user = model_dao.insert_google_user(db, social_id, nickname)
+                google_user = model_dao.insert_google_into_user(db, social_id, nickname)
                 token = jwt.encode(google_user, SECRET_KEY, ALGORITHM)
                 return jsonify(token=token.decode('utf-8'), nickname=nickname), 200
 

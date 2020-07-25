@@ -613,7 +613,7 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    def insert_google_user(self, db, social_id, nickname):
+    def insert_google_into_user(self, db, social_id, nickname):
         """google 회원가입 user를 user에 추가.
 
         Args:
@@ -635,6 +635,29 @@ class ModelDao:
                 return cursor.lastrowid
         except Exception as e:
             raise e
+
+    def insert_google_user(self, db, kakao_id):
+        """google 회원가입.
+
+        Args:
+            kakao_id: 카카오톡 소셜 아이디
+
+        Return:
+           socials 테이블의 마지막 column의 id
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                INSERT INTO socials(google_id, type)
+                VALUES(%s,'google')
+                """
+                affected_row = cursor.execute(query, google_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+                return cursor.lastrowid
+        except Exception as e:
+            raise e
+
 
     def search_google_user(self, db, google_id):
         """google 소셜 로그인.
