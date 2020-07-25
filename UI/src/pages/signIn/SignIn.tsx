@@ -75,7 +75,9 @@ function SignIn(props: {}) {
       <Col span={12} style={{ backgroundColor: "#f8f8f4" }}>
         <Right>
           <Title>소근</Title>
-          <SignInButton theme={theme}>이메일로 로그인하기</SignInButton>
+          <Link to="/emailSignIn">
+            <SignInButton theme={theme}>이메일로 로그인하기</SignInButton>
+          </Link>
           <SignInButton theme={theme} onClick={KakaoLogin}>
             카카오톡으로 로그인하기
           </SignInButton>

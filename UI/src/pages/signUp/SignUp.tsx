@@ -99,9 +99,10 @@ function SignUp() {
         <SiteName>소근</SiteName>
         <Right>
           <Title>회원가입</Title>
-          <div>
+          <div style={{ position: "relative" }}>
             <InputTitle>메일</InputTitle>
             <InputBox onChange={(e) => EmailCheck(e.target.value)} />
+            <CheckBox onClick={duplicateEmailCheck}>중복체크</CheckBox>
           </div>
           <div>
             <InputTitle>비밀번호</InputTitle>
@@ -120,14 +121,13 @@ function SignUp() {
             <LoginButton>Login</LoginButton>
           </div>
         </Right>
-        <CheckBox onClick={duplicateEmailCheck}>중복체크</CheckBox>
       </Col>
     </Row>
   );
 }
 
 const Right = styled.div`
-  position: absolute;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -135,6 +135,7 @@ const Right = styled.div`
   font-stretch: normal;
   font-style: normal;
   line-height: normal;
+  width: 100%;
 `;
 
 const SiteName = styled.p`
@@ -184,7 +185,8 @@ const CheckBox = styled.button`
   color: #252529;
   text-align: center;
   line-height: 36px;
-  position: relative;
+  position: absolute;
+  margin-left: 10px;
 `;
 
 const SignUpButton = styled.button`
