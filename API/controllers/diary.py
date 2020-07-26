@@ -185,16 +185,18 @@ def select_all_diaries(**kwargs):
         filter_dict['emotion'] = request.args.getlist('emotion',int)
         filter_dict['startdate'] = request.args.get('startdate')
         filter_dict['enddate'] = request.args.get('enddate', datetime.today(), str)
+        filter_dict['filter'] = request.args.get('filter')
 
-        filter_dict['pop']
+        #if filter_dict['filter'] == 'like':
+            #filter_dict['user_id'] = kwargs['id']
 
+        print(filter_dict)
         db =db_connector()
 
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         all_diary_list = model_dao.search_all_diaries(db, filter_dict)
-        #like_count = model_dao.search_is_like(db, user_id)
 
         all_diary = [
             {
