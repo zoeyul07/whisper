@@ -4,11 +4,13 @@ BASE_DIR = os.path.dirname(os.path.abspath("API"))
 sys.path.extend([BASE_DIR])
 
 import pymysql
-from flask import Blueprint, jsonify, request
-from jsonschema import validate, ValidationError
 
 from datetime import datetime
+from flask import Blueprint, jsonify, request
+from jsonschema import validate, ValidationError
+from datetime import datetime
 from connections import db_connector
+
 from models import ModelDao
 from decorator import login_required
 
@@ -277,14 +279,14 @@ def select_diary(**kwargs):
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         diary = model_dao.select_diary(db, kwargs['id'], kwargs['diary_id'])
-        data = {
+        data = [{
             'emotion_id': diary['emotion_id'],
             'series_id': diary['series_id'],
             'contents': diary['contents'],
             'summary': diary['summary'],
             'is_completed': diary['is_completed'],
             'public': diary['public']
-            }
+            }]
         return jsonify(data=data), 200
 
     except pymysql.err.InternalError:
@@ -403,8 +405,8 @@ def like_diary(**kwargs):
 
         user_id = kwargs['id']
         diary_id = kwargs['diary_id']
-        liked_diary = model_dao.search_id_like(db, user_id, diary_id)
-
+        liked_diary = model_dao.search_is_like(db, user_id, diary_id)
+        
         db.begin()
         if liked_diary:
             model_dao.delete_liked_diary(db, user_id, diary_id)
@@ -431,6 +433,45 @@ def like_diary(**kwargs):
         return jsonify(message="DATA_ERROR"), 400
     except Exception as e:
         db.rollback()
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()
+
+@diary_app.route('/this-week', methods=['GET'])
+@login_required
+def this_week_diaries(**kwargs):
+    """메인 페이지 내 일주일 다이어리 보여주기"""
+    db = None
+    try:
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        diary_list = model_dao.get_this_week_diaries(db, kwargs['id'])
+        data = [{
+            'diary_id': diary['id'],
+            'day': diary['created_at'],
+            'emotion_id': diary['emotion_id'],
+            'image_url': diary['emotion_image_url'],
+            'color': diary['emotion_color'],
+            'summary': diary['summary'],
+            'liked by me': True if model_dao.search_is_like(db, user_id, diary['id']) else False,
+            'entire_liked_number': model_dao.count_likes(db, diary['id'])
+        }for diary in diary_list]
+        return jsonify(diary_list = data), 200
+
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
         if db:
