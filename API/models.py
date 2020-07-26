@@ -591,6 +591,7 @@ class ModelDao:
 
                 query = query + filter_query + order_by_query + pagination_query
 
+                print(query)
                 affected_row = cursor.execute(query, filter_dict)
                 if affected_row == -1:
                     raise Exception('EXECUTE_FAILED')
@@ -713,14 +714,34 @@ class ModelDao:
                 query = "AND diaries.created_at <= %(enddate)s "
                 filter_query += query
 
-            #if filter_dict['filter']:
-            #    if filter_dict['filter'] == 'like':
-            #        query = ""
-            #if filt
-            #    if filter_dict['filter'] == 'popular':
-            #        query = ""
+            if filter_dict['filter']:
+                if filter_dict['filter'] == 'like':
+                    query = "AND likes.user_id = %(user_id)s "
+                    filter_query += query
+                if filter_dict['filter'] == 'popular':
+                    query = ""
 
             return filter_query
+        except  Exception as e:
+            raise e
+
+    def diary_like_filter(self, db):
+        """다이어리 좋아요 수 order_by
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT diary_id, COUNT(user_id) AS cnt
+                FROM likes
+                WHERE is_deleted=0
+                GROUP BY diary_id
+                ORDER BY cnt DESC
+                """
+                affected_row = cursor.execute(query)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchall()
         except Exception as e:
             raise e
 
