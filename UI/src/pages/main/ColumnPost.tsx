@@ -4,18 +4,18 @@ import imoticon from "./imoticon.png";
 import heart from "./Heart.svg";
 
 interface ColumnPostProps {
-  name: string;
-  username: string;
+  summary: string;
+  nickname: string;
 }
 
 const ColumnPost: React.FunctionComponent<ColumnPostProps> = (props) => {
-  const { name, username } = props;
+  const { summary, nickname } = props;
   return (
     <Post>
       <Heart></Heart>
       <Imoticon></Imoticon>
-      <Content>{name}</Content>
-      <Username>{username}</Username>
+      <Content>{summary}</Content>
+      <Username>{nickname}</Username>
     </Post>
   );
 };

@@ -13,7 +13,7 @@ function Main() {
   const [seriesTitle, setSeriesTitle] = useState<string>("");
   const [myPosts, setMyPosts] = useState([]);
   const [series, setSeries] = useState([]);
-  const [others, setOthers] = useState([]);
+  const [diary, setDiary] = useState([]);
 
   const createTitle = (e: any) => {
     setSeriesTitle(e.target.value);
@@ -24,22 +24,23 @@ function Main() {
     console.log("title", seriesTitle);
   };
 
-  // useEffect(() => {
-  //   const getOthers = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `${"http://172.30.1.11:5000/"}diary?offset=0&limit=6`
-  //       );
-  //       if (response.status === 200) {
-  //         console.log(response.data);
-  //         setOthers(response.data);
-  //       }
-  //     } catch (e) {
-  //       console.log(e.response);
-  //     }
-  //   };
-  //   getOthers();
-  // }, []); // 일주일 내 글 가져오기
+  useEffect(() => {
+    const getDiary = async () => {
+      try {
+        const response = await axios.get(
+          `${"http://172.30.1.11:5000/"}diary?offset=0&limit=6`
+        );
+        if (response.status === 200) {
+          console.log(response.data.diary);
+          // .diary[0].diary_id
+          setDiary(response.data.diary);
+        }
+      } catch (e) {
+        console.log(e.response);
+      }
+    };
+    getDiary();
+  }, []); // 일주일 내 글 가져오기
 
   useEffect(() => {
     const getThisWeek = async () => {
@@ -67,9 +68,9 @@ function Main() {
         if (response.status === 200) {
           if (response.data.length === 10) {
             //setSeries("당신의 이야기를 만들어보세요.");
-            console.log("aaaa");
+            // console.log("aaaa");
           }
-          console.log(response.data);
+          // console.log(response.data);
           setSeries(response.data);
         }
       } catch (e) {
@@ -96,11 +97,15 @@ function Main() {
       <PostContainer>
         <Button buttonName={"MORE"} buttonText={"더 보기"} />
         <Posts>
-          {others.map((data: any, id: number) => {
-            if (data.id === 1) {
-              return <ColumnPost name={data.name} username={data.username} />;
+          {diary.map((data: any, id: number) => {
+            console.log(data);
+            if (data.diary_id === 1) {
+              return (
+                <ColumnPost summary={data.summary} nickname={data.nickname} />
+              );
             }
           })}
+          {/* response.data.diary[0].diary_id */}
 
           <RowContainer>
             <Row>
