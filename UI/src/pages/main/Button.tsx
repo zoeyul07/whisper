@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-interface Buttonprops {
+interface ButtonProps {
   buttonName: "MORE" | "WRITE" | "CREATE";
   isEnable?: boolean;
   buttonText: string;
@@ -12,11 +12,12 @@ interface ButtonLayoutProps {
   buttonName: string;
 }
 
-const Button: React.FunctionComponent<Buttonprops> = (props) => {
+const Button: React.FunctionComponent<ButtonProps> = (props) => {
+  const { buttonName, onClick, buttonText } = props;
   return (
     <ButtonArea>
-      <ButtonLayout buttonName={props.buttonName} onClick={props.onClick}>
-        {props.buttonText}
+      <ButtonLayout buttonName={buttonName} onClick={onClick}>
+        {buttonText}
       </ButtonLayout>
     </ButtonArea>
   );

@@ -1,14 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import imoticon from "./imoticon.png";
-import heart from "./Heart.svg";
+//import heart from "./Heart.svg";
 
-interface ColumnPostProps {
+interface RowPostProps {
   name: string;
   username: string;
 }
 
-const ColumnPost: React.FunctionComponent<ColumnPostProps> = (props) => {
+const RowPost: React.FunctionComponent<RowPostProps> = (props) => {
   const { name, username } = props;
   return (
     <Post>
@@ -20,13 +20,13 @@ const ColumnPost: React.FunctionComponent<ColumnPostProps> = (props) => {
   );
 };
 
-export default ColumnPost;
+export default RowPost;
 
 const Post = styled.div`
-  width: 20%;
-  height: 100%;
-  background-color: rgba(255, 252, 67, 0.2);
-  border: 1px solid #ececec;
+  width: 290px;
+  height: 400px;
+  margin: 0 20px 30px 0;
+  box-shadow: 0 2px 6px 0 rgba(47, 83, 151, 0.1);
 `;
 
 const Heart = styled.svg`
@@ -34,7 +34,7 @@ const Heart = styled.svg`
   height: 24px;
 `;
 
-const Imoticon = styled.div`
+const Imoticon = styled.p`
   width: 84px;
   height: 80px;
   margin: 70px auto 0 auto;

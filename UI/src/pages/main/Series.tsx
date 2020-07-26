@@ -1,19 +1,24 @@
 import React from "react";
 import styled from "styled-components";
 
-function Series() {
+interface SeriesProps {
+  name: string;
+}
+
+const Series: React.FunctionComponent<SeriesProps> = (props) => {
+  const { name } = props;
   return (
     <SeriesPost>
-      <SeriesTitle>월요일</SeriesTitle>
+      <SeriesTitle>{name}</SeriesTitle>
     </SeriesPost>
   );
-}
+};
 
 export default Series;
 
 const SeriesPost = styled.div`
-  width: 250px;
-  height: 220px;
+  width: 187px;
+  height: 160px;
   border: solid 1px #686565;
   opacity: 0.7;
   display: flex;
