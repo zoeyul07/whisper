@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
+import { BoldOutlined } from "@ant-design/icons";
+import { ItalicOutlined } from "@ant-design/icons";
+import { UnderlineOutlined } from "@ant-design/icons";
+import { AlignLeftOutlined } from "@ant-design/icons";
+import { AlignCenterOutlined } from "@ant-design/icons";
+import { AlignRightOutlined } from "@ant-design/icons";
+
+import Emotion from "../../../components/emotion/Emotion";
+
 interface UserStoryProps {
   fontStyle?: string;
   textAlign: string;
@@ -18,6 +27,12 @@ const UserInput: React.FC = () => {
 
   const [userSentence, setUserSentence] = useState("");
 
+  const emotionProps = {
+    width: "auto",
+    height: "auto",
+    emotion: "",
+  };
+
   const handleButtonClick = () => {
     console.log("PostButton 클릭");
   };
@@ -26,16 +41,82 @@ const UserInput: React.FC = () => {
     <UserInputWrapper>
       <ControlBar>
         <ButtonGroup>
-          <ButtonBold onClick={() => setFontStyle("bold")} />
-          <ButtonItalic onClick={() => setFontStyle("italic")} />
-          <ButtonUnderline onClick={() => setFontStyle("underline")} />
+          <ButtonBold onClick={() => setFontStyle("bold")}>
+            <BoldOutlined />
+          </ButtonBold>
+          <ButtonItalic onClick={() => setFontStyle("italic")}>
+            <ItalicOutlined />
+          </ButtonItalic>
+          <ButtonUnderline onClick={() => setFontStyle("underline")}>
+            <UnderlineOutlined />
+          </ButtonUnderline>
         </ButtonGroup>
+        <VerticalLine></VerticalLine>
         <ButtonGroup>
-          <ButtonAlignLeft onClick={() => setTextAlign("left")} />
-          <ButtonAlignCenter onClick={() => setTextAlign("center")} />
-          <ButtonAlignRight onClick={() => setTextAlign("right")} />
+          <ButtonAlignLeft onClick={() => setTextAlign("left")}>
+            <AlignLeftOutlined />
+          </ButtonAlignLeft>
+          <ButtonAlignCenter onClick={() => setTextAlign("center")}>
+            <AlignCenterOutlined />
+          </ButtonAlignCenter>
+          <ButtonAlignRight onClick={() => setTextAlign("right")}>
+            <AlignRightOutlined />
+          </ButtonAlignRight>
         </ButtonGroup>
       </ControlBar>
+
+      <EmotionBar>
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+        <Emotion
+          width={emotionProps.width}
+          height={emotionProps.height}
+          emotion={emotionProps.emotion}
+        />
+      </EmotionBar>
 
       <StoryInput
         placeholder="당신의 이야기를 적어보세요..."
@@ -86,20 +167,25 @@ const ControlBar = styled.div`
 const Button = css`
   width: 48px;
   height: 48px;
+  font-size: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   margin: 0 7px;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  margin: 0 16px;
+  padding: 0 16px;
+`;
 
-  /* :first-child {
-    margin-right: 20px;
-  } */
+const VerticalLine = styled.div`
+  ::after {
+    font-size: 22px;
+    vertical-align: super;
+    content: "|";
+  }
 `;
 
 const ButtonBold = styled.button`
@@ -126,6 +212,15 @@ const ButtonAlignRight = styled.button`
  *  font-style: italic;
  *  text-decoration: underline;
  */
+
+const EmotionBar = styled.div`
+  display: flex;
+  height: 128px;
+  margin: 16px 8px;
+  align-items: center;
+  justify-content: center;
+  background-color: #f2f2f2;
+`;
 
 const StoryInput = styled.textarea<UserStoryProps>`
   width: 97%;
