@@ -27,6 +27,3 @@ six==1.15.0
 urllib3==1.25.10
 wcwidth==0.2.5
 Werkzeug==1.0.1
-google-api-python-client
-google-auth
-authlib==0.11
