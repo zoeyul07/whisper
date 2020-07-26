@@ -393,3 +393,92 @@ def google():
     finally:
         if db:
             db.close()
+
+#회원정보 보기
+@login_required
+@user_app.route('/information', methods=['GET'])
+def select_member_information(**kwargs):
+    db = None
+    try:
+        user_id = kwargs['id']
+
+        db = db_connector()
+
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        data = model_dao.select_user_information(db, user_id)
+
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()
+
+#회원정보 수정
+@login_required
+@user_app.route('/information', methods=['PUT'])
+def modifying_member_information(**kwargs):
+    db = None
+    try:
+        data = request.json
+        user_id = kwargs['id']
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        #회원 정보 변경 전 기존 비밀번호 확인
+        if bcrypt.checkpw(data['password'].encode('utf-8'), kwargs['password'].encode('utf-8')):
+
+            #닉네임 검사 후 있는 닉네임이면 변경 불가
+            nickname = model_dao.search_nickname(db, data['nickname'])
+            if nickname:
+                return jsonify(message = "NICKNAME_ALREADY_EXiST"), 400
+
+            #비밀번호를 변경 했다면 새 비밀번호와 닉네임 저장 후 새 토큰 발행
+            if data['new_password'] != None:
+                new_password = bcrypt.hashpw(data['new_password'].encode('utf-8'), bcrypt.gensalt())
+
+                db.begin()
+                model_dao.put_user_information(db, data['nickname'], new_password, user_id)
+                db.commit()
+
+                #새 토큰 발행
+                new_user = model_dao.search_email(db, kwargs['email'])
+                token = jwt.encode(
+                    {
+                        'id': new_user['id'],
+                        'exp': datetime.utcnow() + timedelta(hours=1)
+                    },
+                    SECRET_KEY,
+                    ALGORITHM
+                ).decode('utf-8')
+                return jsonify(token = token), 200
+
+            #닉네임만 변경했을 때
+            else:
+                db.begin()
+                model_dao.put_user_nickname(db, data['nickname'], user_id)
+                db.commit()
+                return (''), 200
+
+        #기존 비밀번호 틀렸을 때
+        return jsonify(message = "PASSWORD_DOES_NOT_MATCH" ), 400
+
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except Exception as e:
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close()

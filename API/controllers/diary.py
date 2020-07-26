@@ -7,6 +7,7 @@ import pymysql
 from flask import Blueprint, jsonify, request
 from jsonschema import validate, ValidationError
 
+from datetime import datetime
 from connections import db_connector
 from models import ModelDao
 from decorator import login_required
@@ -167,6 +168,10 @@ def change_public(**kwargs):
 def select_all_diaries(**kwargs):
     """
     모든 다이어리 보기
+
+    ---주석 지우면 안되요!!---
+    토큰값 없어서 임시로 주석 달아 놓음.
+
     """
     db = None
     try:
@@ -177,13 +182,19 @@ def select_all_diaries(**kwargs):
         filter_dict['limit'] = request.args.get('limit', 10, int)
         filter_dict['offset'] = request.args.get('offset', 0, int)
 
+        filter_dict['emotion'] = request.args.getlist('emotion',int)
+        filter_dict['startdate'] = request.args.get('startdate')
+        filter_dict['enddate'] = request.args.get('enddate', datetime.today(), str)
+
+        filter_dict['pop']
+
         db =db_connector()
 
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         all_diary_list = model_dao.search_all_diaries(db, filter_dict)
-        like_count = model_dao.search_is_like(db, user_id)
+        #like_count = model_dao.search_is_like(db, user_id)
 
         all_diary = [
             {
@@ -193,7 +204,7 @@ def select_all_diaries(**kwargs):
                 "image_url":diary['image_url'],
                 "color":diary['color'],
                 "summary":diary['summary'],
-                "like":True if model_dao.search_is_like(db, user_id, diary['id']) == 1 else False,
+                #"like":True if model_dao.search_is_like(db, user_id, diary['id']) == 1 else False,
                 "count":model_dao.count_likes(db, diary['id'])
             }for diary in all_diary_list
         ]
@@ -204,23 +215,3 @@ def select_all_diaries(**kwargs):
     finally:
         if db:
             db.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

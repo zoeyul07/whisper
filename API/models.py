@@ -272,6 +272,7 @@ class ModelDao:
         except Exception as e:
             raise e
 
+
     def count_likes(self, db, diary_id):
         """좋아요 갯수.
 
@@ -580,12 +581,15 @@ class ModelDao:
                 INNER JOIN users ON diaries.user_id = users.id
                 LEFT JOIN likes ON diaries.id = likes.diary_id
                 WHERE diaries.is_deleted = 0 AND public = 1 AND is_completed = 1
+                """
+                order_by_query ="""
                 ORDER BY diaries.created_at DESC
                 """
 
                 pagination_query = self.pagination(filter_dict)
+                filter_query = self.diary_filter(filter_dict)
 
-                query = query + pagination_query
+                query = query + filter_query + order_by_query + pagination_query
 
                 affected_row = cursor.execute(query, filter_dict)
                 if affected_row == -1:
@@ -658,7 +662,6 @@ class ModelDao:
         except Exception as e:
             raise e
 
-
     def search_google_user(self, db, google_id):
         """google 소셜 로그인.
 
@@ -684,4 +687,93 @@ class ModelDao:
                 elif affected_row == 0:
                     return None
         except Exception as e:
+            raise e
+
+    def diary_filter(self, filter_dict):
+        """다이어리 필터용 함수
+        """
+        try:
+            filter_query = ""
+            queries = ""
+            if filter_dict['emotion']:
+                for i in range(0, len(filter_dict['emotion'])):
+                    emotion = int(filter_dict['emotion'][i])
+                    if i == 0:
+                        query = f"AND (emotion_id = {emotion} "
+                    else:
+                        query = f"OR emotion_id = {emotion} "
+                    queries += query
+                filter_query += f"{queries})"
+
+            if filter_dict['startdate']:
+                query = "AND diaries.created_at >= %(startdate)s "
+                filter_query += query
+
+            if filter_dict['enddate']:
+                query = "AND diaries.created_at <= %(enddate)s "
+                filter_query += query
+
+            #if filter_dict['filter']:
+            #    if filter_dict['filter'] == 'like':
+            #        query = ""
+            #if filt
+            #    if filter_dict['filter'] == 'popular':
+            #        query = ""
+
+            return filter_query
+        except Exception as e:
+            raise e
+
+    def select_user_information(self, db, user_id):
+        """
+        유저 정보 조회
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                SELECT email, nickname FROM users
+                WHERE id = %s
+                """
+                affected_row = cursor.execute(query, user_id)
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return cursor.fetchone()
+        except Exception as e:
+            raise e
+
+    def put_user_information(self, db, user_nickname, user_password, user_id):
+        """
+        유저 비밀번호와 닉네임 변경
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                UPDATE users SET nickname = %s, password = %s
+                WHERE id = %s
+                """
+                affected_row = cursor.execute(query, (user_nickname, user_password, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except Exception as e:
+            raise e
+
+    def put_user_nickname(self, db, user_nickname, user_id):
+        """
+        유저 닉네임 변경
+        """
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                UPDATE users SET nickname = %s
+                WHERE id = %s
+                """
+                affected_row = cursor.execute(query, (user_nickname, user_id))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
+        except  Exception as e:
             raise e
