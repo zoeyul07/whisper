@@ -829,7 +829,7 @@ class ModelDao:
         except Exception as e:
             raise e
 
-    def update_diary(self, db, user_id, emotion_id, contents, summary, is_completed, public, series_id):
+    def update_diary(self, db, user_id, emotion_id, contents, summary, is_completed, is_public, series_id):
         """다이어리 수정"""
         try:
             with db.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -838,7 +838,7 @@ class ModelDao:
                     SET emotion_id = %s, series_id = %s, contents = %s, summary = %s, is_completed = %s, public = %s
                     WHERE user_id = %s AND diary_id = %s
                     """
-                affected_row = cursor.execute(query, (emotion_id, series_id, contents, summary, is_completed, public, user_id, diary_id))
+                affected_row = cursor.execute(query, (emotion_id, series_id, contents, summary, is_completed, is_public, user_id, diary_id))
 
                 if affected_row == -1:
                     raise Exception("EXECUTED_FAILED")
@@ -889,6 +889,24 @@ class ModelDao:
                     VALUES(%s, %s)
                     """
                 affected_row = cursor.execute(query, (user_id, diary_id))
+
+                if affected_row == -1:
+                    raise Exception("EXECUTED_FAILED")
+                return cursor.fetchone()
+
+        except Exception as e:
+            raise e
+   
+    def get_this_week_diaries(self, db, user_id):
+        """이번주에 작성한 다이어리 가져오기"""
+        try:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
+                query = """
+                    SELECT diaries.id, weekday(created_at), emotion_id, emotions.image_url, emotions.color, summary FROM diaries
+                    INNER JOIN emotions ON diaries.emotion_id = emotions.id 
+                    WHERE diaries.user_id = %s and is_completed = 1 AND created_at BETWEEN ADDDATE( CURDATE(), - WEEKDAY(CURDATE()) + 0 ) AND ADDDATE( CURDATE(), - WEEKDAY(CURDATE()) + 6 )
+                    """
+                affected_row = cursor.execute(query, user_id)
 
                 if affected_row == -1:
                     raise Exception("EXECUTED_FAILED")
