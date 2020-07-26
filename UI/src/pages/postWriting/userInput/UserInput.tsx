@@ -8,7 +8,7 @@ import { AlignLeftOutlined } from "@ant-design/icons";
 import { AlignCenterOutlined } from "@ant-design/icons";
 import { AlignRightOutlined } from "@ant-design/icons";
 
-import Emotion from "../../../components/emotion/Emotion";
+import EmotionBar from "./emotionBar/EmotionBar";
 
 interface UserStoryProps {
   fontStyle?: string;
@@ -27,18 +27,13 @@ const UserInput: React.FC = () => {
 
   const [userSentence, setUserSentence] = useState("");
 
-  const emotionProps = {
-    width: "auto",
-    height: "auto",
-    emotion: "",
-  };
-
   const handleButtonClick = () => {
     console.log("PostButton 클릭");
   };
 
   return (
     <UserInputWrapper>
+      <EmotionBar />
       <ControlBar>
         <ButtonGroup>
           <ButtonBold onClick={() => setFontStyle("bold")}>
@@ -64,59 +59,6 @@ const UserInput: React.FC = () => {
           </ButtonAlignRight>
         </ButtonGroup>
       </ControlBar>
-
-      <EmotionBar>
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-        <Emotion
-          width={emotionProps.width}
-          height={emotionProps.height}
-          emotion={emotionProps.emotion}
-        />
-      </EmotionBar>
 
       <StoryInput
         placeholder="당신의 이야기를 적어보세요..."
@@ -212,15 +154,6 @@ const ButtonAlignRight = styled.button`
  *  font-style: italic;
  *  text-decoration: underline;
  */
-
-const EmotionBar = styled.div`
-  display: flex;
-  height: 128px;
-  margin: 16px 8px;
-  align-items: center;
-  justify-content: center;
-  background-color: #f2f2f2;
-`;
 
 const StoryInput = styled.textarea<UserStoryProps>`
   width: 97%;
