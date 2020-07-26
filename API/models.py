@@ -401,7 +401,7 @@ class ModelDao:
     def search_email(self, db, email):
         """가입된 이메일 확인"""
         try:
-            with db.cursor() as cursor:
+            with db.cursor(pymysql.cursors.DictCursor) as cursor:
                 query = """
                 SELECT id, password FROM users
                 WHERE email = %s
@@ -638,7 +638,7 @@ class ModelDao:
 
                 return cursor.lastrowid
         except Exception as e:
-            raise e
+           raise e
 
     def insert_google_user(self, db, kakao_id):
         """google 회원가입.
@@ -894,5 +894,29 @@ class ModelDao:
                     raise Exception("EXECUTED_FAILED")
                 return cursor.fetchone()
 
+        except Exception as e:
+            raise e
+
+    def update_password(self, db, password, email):
+        """다이어리 공개 여부 변경.
+
+        Args:
+            password: 변경할 비밀번호
+            email: 사용자 이메일
+
+        Return:
+             None
+        """
+        try:
+            with db.cursor() as cursor:
+                query = """
+                UPDATE users SET password = %s
+                WHERE email = %s
+                """
+                affected_row = cursor.execute(query, (password, email))
+                if affected_row == -1:
+                    raise Exception('EXECUTE_FAILED')
+
+                return None
         except Exception as e:
             raise e

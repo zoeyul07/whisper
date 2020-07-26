@@ -7,6 +7,7 @@ import jwt
 import pymysql
 import bcrypt
 import requests
+import random
 
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
@@ -14,6 +15,8 @@ from connections import db_connector
 from my_settings import SECRET_KEY, ALGORITHM
 from models import ModelDao
 from decorator import login_required
+from string import punctuation, ascii_letters, digits
+from send_email  import send_email
 
 user_app = Blueprint('user', __name__)
 model_dao = ModelDao()
@@ -482,3 +485,57 @@ def modifying_member_information(**kwargs):
     finally:
         if db:
             db.close()
+
+@user_app.route('/password', methods=['POST'])
+def change_password():
+    db = None
+    try:
+        # 사용자 email 받아옴
+        email = request.json['email']
+
+        # random한 임시 비밀번호 생성
+        symbols = ascii_letters + digits + punctuation
+        secure_random = random.SystemRandom()
+        password = "".join(secure_random.choice(symbols) for i in range(10))
+
+        temporary_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        db = db_connector()
+        if db is None:
+            return jsonify(message="DATABASE_INIT_ERROR"), 500
+
+        user_email = model_dao.search_email(db, email)
+        if user_email is None:
+            return jsonify(message="DATA_ERROR"), 400
+
+        db.begin()
+        model_dao.update_password(db, temporary_password, email)
+        db.commit()
+
+        send_email(password, email)
+        return(''), 200
+
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
+    except Exception as e:
+        db.rollback()
+        return jsonify(message=f"{e}"), 500
+    finally:
+        if db:
+            db.close
