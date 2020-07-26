@@ -8,20 +8,38 @@ from flask import Blueprint, request, jsonify
 
 from connections import db_connector
 from models import ModelDao
+from decorator import login_required
 
 series_app = Blueprint("series_app", __name__)
 model_dao = ModelDao()
 
 @series_app.route('', methods=['POST'])
-def new_series():
-    """새로운 시리즈 생성 API
+@login_required
+def new_series(**kwargs):
+    """새로운 시리즈 생성 API.
 
+    Headers:
+        Token
+
+    Args:
+        user_id: 사용자 id
+        name: 생성될 시리즈 이름
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
-
     db = None
     try:
         # user_id = 토큰에서 받아온 user_id
-        user_id = 1
+        user_id = kwargs['id']
         name = request.json['name']
 
         db = db_connector()
@@ -29,9 +47,9 @@ def new_series():
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
-        series_id = model_dao.search_series(db, user_id, name)
-
         # 시리즈 중복 확인
+        series_id = model_dao.search_series(db, user_id, name)
+        # 시리즈가 존재하면 Error
         if series_id:
             return jsonify(message="EXIST_SERIES"), 400
 
@@ -42,6 +60,24 @@ def new_series():
 
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -50,13 +86,27 @@ def new_series():
             db.close()
 
 @series_app.route('', methods=['GET'])
-def find_user_series():
-    """ user별 시리즈 조회
+@login_required
+def find_user_series(**kwargs):
+    """user별 시리즈 조회.
 
+    Headers:
+        token
+
+    Return:
+        {data}, http status code
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
     db = None
     try:
-        user_id = 1
+        user_id = kwargs['id']
 
         db = db_connector()
         if db is None:
@@ -72,6 +122,18 @@ def find_user_series():
 
         return jsonify(data), 200
 
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
@@ -79,14 +141,33 @@ def find_user_series():
             db.close()
 
 @series_app.route('/<int:series_id>', methods=['PUT'])
-def change_series_name(series_id):
-    """시리즈 이름 변경 API
+@login_required
+def change_series_name(**kwargs):
+    """시리즈 이름 변경 API.
 
+    Headers:
+        token
+
+    Args:
+       series_id: 시리즈 id
+       name: 변경할 시리즈 이름
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
-        user_id = 1
         name = request.json['name']
 
         db = db_connector()
@@ -98,6 +179,24 @@ def change_series_name(series_id):
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -106,25 +205,62 @@ def change_series_name(series_id):
             db.close()
 
 @series_app.route('/<int:series_id>', methods=['DELETE'])
-def delete_series(series_id):
-    """시리즈 삭제하는 API
+@login_required
+def delete_series(**kwargs):
+    """시리즈 삭제하는 API.
 
+    Header:
+        token
+
+    Args:
+        series_id: 시리즈 id
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         db.begin()
+        # 시리즈 삭제
         model_dao.delete_series_from_db(db, series_id, user_id)
+        # 다이어리에서 해당 시리즈 삭제
         model_dao.delete_series_from_diaries(db, series_id, user_id)
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -133,14 +269,31 @@ def delete_series(series_id):
             db.close()
 
 @series_app.route('diary/<int:series_id>', methods=['GET'])
-def diaries_series(series_id):
-    """시리즈별 다이어리 보여주는 API
+@login_required
+def diaries_series(**kwargs):
+    """시리즈별 다이어리 보여주는 API.
 
+    Headers:
+        token
+
+    Args:
+        series_id: 시리즈 id
+
+    Return:
+        {diary}, http status code
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
     """
+    db = None
     try:
-        db = None
-
-        user_id = 1
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         db = db_connector()
         if db is None:
@@ -161,6 +314,19 @@ def diaries_series(series_id):
             }for data in diaries]
 
         return jsonify(diary), 200
+
+    except pymysql.err.InternalError:
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         return jsonify(message=f"{e}"), 500
     finally:
@@ -168,13 +334,32 @@ def diaries_series(series_id):
             db.close()
 
 @series_app.route('diary/<int:series_id>', methods=['POST'])
-def insert_serise_diary(series_id):
-    """시리즈에 다이어리 추가 API
-    """
-    try:
-        db = None
+@login_required
+def insert_serise_diary(**kwargs):
+    """시리즈에 다이어리 추가 API.
 
-        user_id = 1
+    Headers:
+        token
+
+    Args:
+        series_id: 시리즈 id
+        diary_id: 다이어리 id
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
+    """
+    db = None
+    try:
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         # requset body로 들어온 diary id를 tuple로 변경
         diaries = request.json['diary_id']
@@ -193,6 +378,24 @@ def insert_serise_diary(series_id):
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
@@ -201,14 +404,32 @@ def insert_serise_diary(series_id):
             db.close()
 
 @series_app.route('diary/<int:series_id>', methods=['DELETE'])
-def delete_diary(series_id):
-    """
-    시리즈에서 다이어리 삭제하는 API
-    """
-    try:
-        db = None
+@login_required
+def delete_diary(**kwargs):
+    """시리즈에서 다이어리 삭제하는 API.
 
-        user_id = 1
+    Headers:
+        token
+
+    Args:
+        series_id: 시리즈 id
+        diary_id: 다이어리 id
+
+    Return:
+        None
+
+    Exceptions:
+        InternalError: DATABASE가 존재하지 않을 때 발생
+        OperationalError: DATABASE 접속이 인가되지 않았을 때 발생
+        ProgramingError: SQL syntax가 잘못되었을 때 발생
+        IntegrityError: Key의 무결성을 해쳤을 때 발생
+        DataError: 컬럼 타입과 매칭되지 않는 값이 DB에 전달되었을 때 발생
+        KeyError: 엔드포인트에서 요구하는 키값이 전달되지 않았을 때 발생
+    """
+    db = None
+    try:
+        user_id = kwargs['id']
+        series_id = kwargs['series_id']
 
         diaries = request.json['diary_id']
 
@@ -224,10 +445,28 @@ def delete_diary(series_id):
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         db.begin()
-        model_dao.delete_diary_from_series(db, diary_tuple, user_id, series_id)
+        model_dao.delete_diaries_from_series(db, diary_tuple, user_id, series_id)
         db.commit()
         return (''), 200
 
+    except pymysql.err.InternalError:
+        db.rollback()
+        return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
+    except pymysql.err.OperationalError:
+        db.rollback()
+        return jsonify(message="DATABASE_AUTHORIZATION_DENIED"), 500
+    except pymysql.err.ProgrammingError:
+        db.rollback()
+        return jsonify(message="DATABASE_SYNTAX_ERROR"), 500
+    except pymysql.err.IntegrityError:
+        db.rollback()
+        return jsonify(message="FOREIGN_KEY_CONSTRAINT_ERROR"), 500
+    except pymysql.err.DataError:
+        db.rollback()
+        return jsonify(message="DATA_ERROR"), 400
+    except KeyError:
+        db.rollback()
+        return jsonify(message="KEY_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500

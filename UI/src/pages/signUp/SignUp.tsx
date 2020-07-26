@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Row, Col } from "antd";
+import "antd/dist/antd.css";
+import styled from "styled-components";
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -90,30 +93,118 @@ function SignUp() {
   }; //백으로 유저 정보 보내기
 
   return (
-    <div>
-      <div>
-        <span>메일</span>
-        <input onChange={(e) => EmailCheck(e.target.value)} />
-        <button onClick={duplicateEmailCheck}>이메일 중복체크</button>
-      </div>
-      <div>
-        <span>비밀번호</span>
-        <input onChange={(e) => passwordCheck(e.target.value)} />
-      </div>
-      <div>
-        <span>비밀번호 확인</span>
-        <input onChange={(e) => setConfirm(e.target.value)} />
-      </div>
-      <div>
-        <span>닉네임</span>
-        <input onChange={(e) => nickNameCheck(e.target.value)} />
-      </div>
-      <div>
-        <button onClick={register}>Register</button>
-        <button>Login</button>
-      </div>
-    </div>
+    <Row style={{ height: "100%" }}>
+      <Col span={12} />
+      <Col span={12} style={{ backgroundColor: "#f8f8f4" }}>
+        <SiteName>소근</SiteName>
+        <Right>
+          <Title>회원가입</Title>
+          <div style={{ position: "relative" }}>
+            <InputTitle>메일</InputTitle>
+            <InputBox onChange={(e) => EmailCheck(e.target.value)} />
+            <CheckBox onClick={duplicateEmailCheck}>중복체크</CheckBox>
+          </div>
+          <div>
+            <InputTitle>비밀번호</InputTitle>
+            <InputBox onChange={(e) => passwordCheck(e.target.value)} />
+          </div>
+          <div>
+            <InputTitle>비밀번호 확인</InputTitle>
+            <InputBox onChange={(e) => setConfirm(e.target.value)} />
+          </div>
+          <div>
+            <InputTitle>닉네임</InputTitle>
+            <InputBox onChange={(e) => nickNameCheck(e.target.value)} />
+          </div>
+          <div>
+            <SignUpButton onClick={register}>Register</SignUpButton>
+            <LoginButton>Login</LoginButton>
+          </div>
+        </Right>
+      </Col>
+    </Row>
   );
 }
+
+const Right = styled.div`
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: AppleSDGothicNeo;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  width: 100%;
+`;
+
+const SiteName = styled.p`
+  margin: 58px 0 0 50px;
+  font-family: AppleSDGothicNeo;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.51px;
+  color: #6b6c6f;
+`;
+
+const Title = styled.p`
+  width: 351px;
+  margin: 233px 0 3px 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.69px;
+  color: #252529;
+`;
+
+const InputTitle = styled.p`
+  margin: 20px 0 11px 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.34px;
+  color: #6b6c6f;
+`;
+
+const InputBox = styled.input`
+  width: 351px;
+  height: 38px;
+  opacity: 0.7;
+  border-radius: 4px;
+  border: solid 1px #686565;
+  background-color: #f8f8f4;
+`;
+
+const CheckBox = styled.button`
+  width: 90px;
+  height: 36px;
+  border-radius: 20px;
+  border: solid 1px #686565;
+  background-color: rgba(255, 255, 255, 0);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.34px;
+  color: #252529;
+  text-align: center;
+  line-height: 36px;
+  position: absolute;
+  margin-left: 10px;
+`;
+
+const SignUpButton = styled.button`
+  width: 160px;
+  height: 40px;
+  border-radius: 20px;
+  border: solid 2px #686565;
+  background-color: rgba(255, 255, 255, 0);
+  margin: 31px 30px 0 0;
+`;
+
+const LoginButton = styled.button`
+  width: 160px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #faa02a;
+  color: #ffffff;
+  margin-top: 31px;
+`;
 
 export default SignUp;
