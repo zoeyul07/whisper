@@ -30,7 +30,7 @@ a {
 	cursor: pointer;
 }
 
-input {
+input, textarea {
 	box-shadow: none;
 	border: solid 1px #686565;
 	border-radius: 4px;

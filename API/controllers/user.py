@@ -12,7 +12,7 @@ import random
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from connections import db_connector
-from my_settings import SECRET_KEY, ALGORITHM
+from my_settings import SECRET_KEY, ALGORITHM, SIGN_IN_SCHEMA
 from models import ModelDao
 from decorator import login_required
 from string import punctuation, ascii_letters, digits
@@ -113,11 +113,13 @@ def sign_up():
     """
     db = None
     try:
+        data = request.json
+        validate(data, SIGN_IN_SCHEMA)
+
         db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
-        data = request.json
         email = model_dao.search_email(db, data['email'])
         if email:
             return jsonify(message="EMAIL_EXIST"), 400
@@ -144,6 +146,8 @@ def sign_up():
     except pymysql.err.DataError:
         db.rollback()
         return jsonify(message="DATA_ERROR"), 400
+    except ValidationError as e:
+        return jsonify(message="VALIDATION_ERROR"), 400
     except Exception as e:
         db.rollback()
         return jsonify(message=f"{e}"), 500
