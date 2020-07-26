@@ -7,6 +7,7 @@ import pymysql
 from flask import Blueprint, jsonify, request
 from jsonschema import validate, ValidationError
 
+from datetime import datetime
 from connections import db_connector
 from models import ModelDao
 from decorator import login_required
@@ -167,6 +168,10 @@ def change_public(**kwargs):
 def select_all_diaries(**kwargs):
     """
     모든 다이어리 보기
+
+    ---주석 지우면 안되요!!---
+    토큰값 없어서 임시로 주석 달아 놓음.
+
     """
     db = None
     try:
@@ -177,13 +182,19 @@ def select_all_diaries(**kwargs):
         filter_dict['limit'] = request.args.get('limit', 10, int)
         filter_dict['offset'] = request.args.get('offset', 0, int)
 
+        filter_dict['emotion'] = request.args.getlist('emotion',int)
+        filter_dict['startdate'] = request.args.get('startdate')
+        filter_dict['enddate'] = request.args.get('enddate', datetime.today(), str)
+
+        filter_dict['pop']
+
         db =db_connector()
 
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
 
         all_diary_list = model_dao.search_all_diaries(db, filter_dict)
-        like_count = model_dao.search_is_like(db, user_id)
+        #like_count = model_dao.search_is_like(db, user_id)
 
         all_diary = [
             {
@@ -193,7 +204,7 @@ def select_all_diaries(**kwargs):
                 "image_url":diary['image_url'],
                 "color":diary['color'],
                 "summary":diary['summary'],
-                "like":True if model_dao.search_is_like(db, user_id, diary['id']) == 1 else False,
+                #"like":True if model_dao.search_is_like(db, user_id, diary['id']) == 1 else False,
                 "count":model_dao.count_likes(db, diary['id'])
             }for diary in all_diary_list
         ]
@@ -214,22 +225,22 @@ def create_diary(**kwargs):
         db = db_connector()
         if db is None:
             return jsonify(message="DATABASE_INIT_ERROR"), 500
-        
+
         data = request.json()
         db.begin()
         diary = model_dao.insert_diary(
                 db,
                 kwargs['id'],
-                data['emotion_id'], 
-                data['contents'], 
-                data['summary'], 
-                data['is_completed'], 
-                data['public'], 
+                data['emotion_id'],
+                data['contents'],
+                data['summary'],
+                data['is_completed'],
+                data['public'],
                 data['series_id']
                 )
         db.commit()
         return '', 200
-    
+
     except pymysql.err.InternalError:
         db.rollback()
         return jsonify(message="DATABASE_DOES_NOT_EXIST"), 500
@@ -254,7 +265,7 @@ def create_diary(**kwargs):
     finally:
         if db:
             db.close()
-        
+
 @diary_app.route('/<int:diary_id>', methods=['GET'])
 @login_required
 def select_diary(**kwargs):
@@ -293,7 +304,7 @@ def select_diary(**kwargs):
             db.close()
 
 @diary_app.route('/<int:diary_id>', methods=['PUT'])
-@login_required 
+@login_required
 def modify_diary(**kwargs):
     """다이어리 수정"""
     db = None
@@ -305,15 +316,15 @@ def modify_diary(**kwargs):
         data = request.json()
         db.begin()
         model_dao.update_diary(
-                db, 
-                data['emotion_id'], 
-                data['series_id'], 
-                data['contents'], 
-                data['summary'], 
-                data['is_completed'], 
-                data['public'], 
-                kwargs['id'], 
-                kwargs['diary_id'] 
+                db,
+                data['emotion_id'],
+                data['series_id'],
+                data['contents'],
+                data['summary'],
+                data['is_completed'],
+                data['public'],
+                kwargs['id'],
+                kwargs['diary_id']
                 )
         db.commit()
         return '', 200
@@ -393,7 +404,7 @@ def like_diary(**kwargs):
         user_id = kwargs['id']
         diary_id = kwargs['diary_id']
         liked_diary = model_dao.search_id_like(db, user_id, diary_id)
-        
+
         db.begin()
         if liked_diary:
             model_dao.delete_liked_diary(db, user_id, diary_id)
@@ -424,4 +435,3 @@ def like_diary(**kwargs):
     finally:
         if db:
             db.close()
-
